@@ -1,6 +1,7 @@
-name: CasdoorFlutterSdk
+name: casdoor_flutter_sdk
 description: Flutter client SDK for Casdoor.
 
 environment:
   sdk: '>=2.12.0 <3.0.0'
 dependencies:
+  dio: ^4.0.6

@@ -11,12 +11,10 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-library dart._index;
 
 import 'dart:core';
 import 'dart:html';
-import 'dart:io';
-import 'dart:convert';
+import 'package:dio/dio.dart';
 
 abstract class SdkConfig {
   late String serverUrl; // your Casdoor server URL, e.g., "https://door.casbin.com" for the official demo site
@@ -85,10 +83,7 @@ class Sdk {
 
   Future signin(String serverUrl) async {
     Uri params = Uri.parse("${window.location.search}");
-    final client = HttpClient();
-    final request = await client.postUrl(Uri.parse("${serverUrl}/api/signin?code=${params.queryParameters["code"]}&state=${params.queryParameters["state"]}"));
-    request.write('{ "credentials": "include"}');
-    final response = await request.close();
-    return await response.transform(utf8.decoder).join();
+    Response response = await Dio().post("${serverUrl}/api/signin?code=${params.queryParameters["code"]}&state=${params.queryParameters["state"]}", data: {"credentials": "include"});
+    return await response.data.toString();
   }
 }
