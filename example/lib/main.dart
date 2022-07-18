@@ -46,7 +46,7 @@ class _MyAppState extends State<MyApp> {
     final platform = await CasdoorFlutterSdkPlatform.instance.getPlatformVersion() ?? "";
     String callbackUri;
     if (platform == "web") {
-       callbackUri = _config.redirectUri;
+       callbackUri = "${_config.redirectUri}.html";
     } else {
        callbackUri = "${_config.callbackUrlScheme}://callback" ;
     }

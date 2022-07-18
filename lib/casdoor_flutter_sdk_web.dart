@@ -37,7 +37,7 @@ class CasdoorFlutterSdkWeb extends CasdoorFlutterSdkPlatform  {
     context.callMethod('open', [url]);
     await for (MessageEvent messageEvent in window.onMessage) {
       if (messageEvent.origin == Uri.base.origin) {
-        final flutterWebAuthMessage = messageEvent.data['casdoor-flutter-sdk'];
+        final flutterWebAuthMessage = messageEvent.data['casdoor-auth'];
         if (flutterWebAuthMessage is String) {
           return flutterWebAuthMessage;
         }
