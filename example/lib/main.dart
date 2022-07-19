@@ -5,8 +5,6 @@ import 'package:casdoor_flutter_sdk/casdoor_flutter_sdk_config.dart';
 import 'package:casdoor_flutter_sdk/casdoor_flutter_sdk_platform_interface.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'dart:io' show HttpServer;
-
 
 
 void main() {

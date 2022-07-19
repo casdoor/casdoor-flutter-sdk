@@ -1,3 +1,4 @@
+import 'package:flutter/src/services/platform_channel.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:casdoor_flutter_sdk/casdoor_flutter_sdk.dart';
 import 'package:casdoor_flutter_sdk/casdoor_flutter_sdk_platform_interface.dart';
@@ -10,6 +11,12 @@ class MockCasdoorFlutterSdkPlatform
 
   @override
   Future<String?> getPlatformVersion() => Future.value('42');
+
+  @override
+  MethodChannel getMethodChannel() {
+    // TODO: implement getMethodChannel
+    throw UnimplementedError();
+  }
 }
 
 void main() {

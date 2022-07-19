@@ -1,7 +1,7 @@
 name: casdoor_flutter_sdk
-description: A new Flutter project.
-version: 0.0.1
-homepage:
+description: Casdoor_flutter_sdk will allow you to easily connect your application to the Casdoor authentication system without having to implement it from scratch.
+version: 0.0.2+2
+homepage: https://github.com/casdoor/casdoor-flutter-sdk
 
 environment:
   sdk: ">=2.17.5 <3.0.0"
