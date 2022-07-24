@@ -1,11 +1,12 @@
+# Casdoor Flutter SDK
 
-This is casdoor-flutter-sdk will allow you to easily connect your application to the Casdoor authentication system without having to implement it from scratch.
+casdoor-flutter-sdk will allow you to easily connect your Flutter-based application to the [Casdoor authentication system](https://casdoor.org/) without having to implement it from scratch.
 
 The following platforms are supported:
 
 + Android
 + iOS 
-+ macos
++ macOS
 + Web
 
 |  **Android**   | **iOS**  | **Web** |
