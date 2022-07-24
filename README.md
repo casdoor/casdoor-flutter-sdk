@@ -10,7 +10,7 @@ The following platforms are supported:
 
 |  **Android**   | **iOS**  | **Web** |
 |  ----  | ----  |----  |
-| ![Android](https://cdn.jsdelivr.net/gh/ziliangyu/picb@main/screen-andriod.gif) |![iOS](https://cdn.jsdelivr.net/gh/ziliangyu/picb@main/screen-ios.gif)  |![Web](https://cdn.jsdelivr.net/gh/ziliangyu/picb@main/screen-web.gif) |
+| ![Android](screen-andriod.gif) |![iOS](screen-ios.gif)  |![Web](screen-web.gif) |
 
 # Features
 Use this plugin in your Flutter app to:
