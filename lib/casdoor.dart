@@ -5,7 +5,7 @@ import 'package:casdoor_flutter_sdk/casdoor_flutter_sdk_config.dart';
 import 'package:casdoor_flutter_sdk/casdoor_flutter_sdk_oauth.dart';
 import 'package:crypto/crypto.dart';
 class Casdoor {
-  final CasdoorFlutterSdkConfig config;
+  final AuthConfig config;
   late final String codeVerifier;
   late final String nonce;
 

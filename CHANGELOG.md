@@ -13,3 +13,11 @@
 ## 0.0.2+2
 
 * fix picture.
+
+## 0.0.2+2
+
+* fix picture.
+
+## 0.0.2+3
+
+* delete casdoor_flutter_sdk.dart.

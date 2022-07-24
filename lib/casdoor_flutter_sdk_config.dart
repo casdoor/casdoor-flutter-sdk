@@ -1,4 +1,4 @@
-class CasdoorFlutterSdkConfig {
+class AuthConfig {
    final String clientId;
    final String endpoint;
    final String organizationName;
@@ -6,7 +6,7 @@ class CasdoorFlutterSdkConfig {
    final String callbackUrlScheme;
    final String appName;
 
-  CasdoorFlutterSdkConfig({
+   AuthConfig({
       required this.clientId,
       required this.endpoint,
       required this.organizationName,

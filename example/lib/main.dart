@@ -23,7 +23,7 @@ class _MyAppState extends State<MyApp> {
   String _token = 'User is not logged in';
 
 
-  final CasdoorFlutterSdkConfig _config =  CasdoorFlutterSdkConfig(
+  final AuthConfig _config =  AuthConfig(
       clientId: "014ae4bd048734ca2dea",
       endpoint: "door.casdoor.com",
       organizationName: "casbin",
