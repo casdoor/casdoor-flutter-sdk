@@ -1,4 +1,4 @@
-// Copyright 2021 The casbin Authors. All Rights Reserved.
+// Copyright 2022 The casbin Authors. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ abstract class CasdoorFlutterSdkPlatform extends PlatformInterface {
   ///
   /// Defaults to [MethodChannelCasdoorFlutterSdk].
   static CasdoorFlutterSdkPlatform get instance => _instance;
-  
+
   /// Platform-specific implementations should set this with their own
   /// platform-specific class that extends [CasdoorFlutterSdkPlatform] when
   /// they register themselves.
@@ -37,9 +37,11 @@ abstract class CasdoorFlutterSdkPlatform extends PlatformInterface {
     PlatformInterface.verifyToken(instance, _token);
     _instance = instance;
   }
+
   MethodChannel getMethodChannel() {
     return const MethodChannel('casdoor_flutter_sdk');
   }
+
   Future<String?> getPlatformVersion() {
     throw UnimplementedError('platformVersion() has not been implemented.');
   }

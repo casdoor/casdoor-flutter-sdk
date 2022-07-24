@@ -1,4 +1,4 @@
-// Copyright 2021 The casbin Authors. All Rights Reserved.
+// Copyright 2022 The casbin Authors. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,10 +23,9 @@ import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 
 import 'casdoor_flutter_sdk_platform_interface.dart';
 
-class CasdoorFlutterSdkWeb extends CasdoorFlutterSdkPlatform  {
+class CasdoorFlutterSdkWeb extends CasdoorFlutterSdkPlatform {
   static void registerWith(Registrar registrar) {
-    final MethodChannel channel = MethodChannel(
-        'casdoor_flutter_sdk', const StandardMethodCodec(), registrar.messenger);
+    final MethodChannel channel = MethodChannel('casdoor_flutter_sdk', const StandardMethodCodec(), registrar.messenger);
     final CasdoorFlutterSdkWeb instance = CasdoorFlutterSdkWeb();
     channel.setMethodCallHandler(instance.handleMethodCall);
     CasdoorFlutterSdkPlatform.instance = instance;
@@ -70,8 +69,7 @@ class CasdoorFlutterSdkWeb extends CasdoorFlutterSdkPlatform  {
         } on FormatException {}
       }
     }
-    throw PlatformException(
-        code: 'error', message: 'Iterable window.onMessage is empty');
+    throw PlatformException(code: 'error', message: 'Iterable window.onMessage is empty');
   }
 
   @override

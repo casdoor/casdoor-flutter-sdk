@@ -1,4 +1,4 @@
-// Copyright 2021 The casbin Authors. All Rights Reserved.
+// Copyright 2022 The casbin Authors. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,18 +13,12 @@
 // limitations under the License.
 
 class AuthConfig {
-   final String clientId;
-   final String endpoint;
-   final String organizationName;
-   String redirectUri;
-   final String callbackUrlScheme;
-   final String appName;
+  final String clientId;
+  final String endpoint;
+  final String organizationName;
+  String redirectUri;
+  final String callbackUrlScheme;
+  final String appName;
 
-   AuthConfig({
-      required this.clientId,
-      required this.endpoint,
-      required this.organizationName,
-      required this.appName,
-      this.redirectUri = "casdoor://callback",
-      this.callbackUrlScheme = "casdoor"});
+  AuthConfig({required this.clientId, required this.endpoint, required this.organizationName, required this.appName, this.redirectUri = "casdoor://callback", this.callbackUrlScheme = "casdoor"});
 }

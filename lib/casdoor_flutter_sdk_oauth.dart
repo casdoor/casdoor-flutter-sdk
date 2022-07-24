@@ -1,4 +1,4 @@
-// Copyright 2021 The casbin Authors. All Rights Reserved.
+// Copyright 2022 The casbin Authors. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,12 +29,14 @@ class _OnAppLifecycleResumeObserver extends WidgetsBindingObserver {
     }
   }
 }
+
 class CasdoorOauth {
   static final MethodChannel _channel = CasdoorFlutterSdkPlatform.instance.getMethodChannel();
 
   Future<String?> getPlatformVersion() {
     return CasdoorFlutterSdkPlatform.instance.getPlatformVersion();
   }
+
   static final _OnAppLifecycleResumeObserver _resumedObserver = _OnAppLifecycleResumeObserver(() {
     _cleanUpDanglingCalls(); // unawaited
   });
@@ -47,6 +49,7 @@ class CasdoorOauth {
       'preferEphemeral': preferEphemeral ?? false,
     }) as String;
   }
+
   /// On Android, the plugin has to store the Result callbacks in order to pass the result back to the caller of
   /// `authenticate`. But if that result never comes the callback will dangle around forever. This can be called to
   /// terminate all `authenticate` calls with an error.
