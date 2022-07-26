@@ -1,5 +1,14 @@
 # Casdoor Flutter SDK
 
+<p align="left">
+    <a href="https://pub.dev/packages/casdoor_flutter_sdk"><img src="https://badges.bar/casdoor_flutter_sdk/likes" alt="Pub.dev likes"/></a>
+    <a href="https://pub.dev/packages/casdoor_flutter_sdk" alt="Pub.dev popularity"><img src="https://badges.bar/casdoor_flutter_sdk/popularity"/></a>
+    <a href="https://pub.dev/packages/casdoor_flutter_sdk"><img src="https://badges.bar/casdoor_flutter_sdk/pub%20points" alt="Pub.dev points"/></a>
+    <a href="https://pub.dev/packages/casdoor_flutter_sdk"><img src="https://img.shields.io/pub/v/casdoor_flutter_sdk.svg?include_prereleases" alt="latest version"/></a>
+    <a href="https://pub.dev/packages/casdoor_flutter_sdk"><img src="https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20macOS%20%7C%20Web-blue?logo=flutter" alt="Platform"/></a>
+    <a href="./LICENSE"><img src="https://img.shields.io/github/license/agoraio-community/flutter-uikit?color=lightgray" alt="License"/></a>
+</p>
+
 casdoor-flutter-sdk will allow you to easily connect your Flutter-based application to the [Casdoor authentication system](https://casdoor.org/) without having to implement it from scratch.
 
 The following platforms are supported:
