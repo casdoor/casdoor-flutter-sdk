@@ -21,3 +21,7 @@
 ## 0.0.2+3
 
 * delete casdoor_flutter_sdk.dart.
+
+## 0.0.2+4
+
+* fix: dart sdk.
