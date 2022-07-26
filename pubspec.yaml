@@ -4,8 +4,8 @@ version: 0.0.2+3
 homepage: https://github.com/casdoor/casdoor-flutter-sdk
 
 environment:
-  sdk: ">=2.17.5 <3.0.0"
-  flutter: ">=2.5.0"
+  sdk: ">=2.14.5 <3.0.0"
+  flutter: ">=2.8.0"
 
 dependencies:
   flutter:
@@ -19,7 +19,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.0
+  flutter_lints: ^1.0.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -79,3 +79,5 @@ flutter:
   #
   # For details regarding fonts in packages, see
   # https://flutter.dev/custom-fonts/#from-packages
+false_secrets:
+  - /credentials.json

@@ -31,18 +31,24 @@ class _OnAppLifecycleResumeObserver extends WidgetsBindingObserver {
 }
 
 class CasdoorOauth {
-  static final MethodChannel _channel = CasdoorFlutterSdkPlatform.instance.getMethodChannel();
+  static final MethodChannel _channel =
+      CasdoorFlutterSdkPlatform.instance.getMethodChannel();
 
   Future<String?> getPlatformVersion() {
     return CasdoorFlutterSdkPlatform.instance.getPlatformVersion();
   }
 
-  static final _OnAppLifecycleResumeObserver _resumedObserver = _OnAppLifecycleResumeObserver(() {
+  static final _OnAppLifecycleResumeObserver _resumedObserver =
+      _OnAppLifecycleResumeObserver(() {
     _cleanUpDanglingCalls(); // unawaited
   });
-  static Future<String> authenticate({required String url, required String callbackUrlScheme, bool? preferEphemeral}) async {
-    WidgetsBinding.instance.removeObserver(_resumedObserver); // safety measure so we never add this observer twice
-    WidgetsBinding.instance.addObserver(_resumedObserver);
+  static Future<String> authenticate(
+      {required String url,
+      required String callbackUrlScheme,
+      bool? preferEphemeral}) async {
+    WidgetsBinding.instance?.removeObserver(
+        _resumedObserver); // safety measure so we never add this observer twice
+    WidgetsBinding.instance?.addObserver(_resumedObserver);
     return await _channel.invokeMethod('authenticate', <String, dynamic>{
       'url': url,
       'callbackUrlScheme': callbackUrlScheme,
@@ -55,6 +61,6 @@ class CasdoorOauth {
   /// terminate all `authenticate` calls with an error.
   static Future<void> _cleanUpDanglingCalls() async {
     await _channel.invokeMethod('cleanUpDanglingCalls');
-    WidgetsBinding.instance.removeObserver(_resumedObserver);
+    WidgetsBinding.instance?.removeObserver(_resumedObserver);
   }
 }
