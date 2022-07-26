@@ -34,7 +34,13 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   String _token = 'User is not logged in';
 
-  final AuthConfig _config = AuthConfig(clientId: "014ae4bd048734ca2dea", endpoint: "door.casdoor.com", organizationName: "casbin", appName: "app-casnode", redirectUri: "http://localhost:9000/callback", callbackUrlScheme: "casdoor");
+  final AuthConfig _config = AuthConfig(
+      clientId: "014ae4bd048734ca2dea",
+      endpoint: "door.casdoor.com",
+      organizationName: "casbin",
+      appName: "app-casnode",
+      redirectUri: "http://localhost:9000/callback",
+      callbackUrlScheme: "casdoor");
 
   @override
   void initState() {
@@ -44,7 +50,8 @@ class _MyAppState extends State<MyApp> {
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> authenticate() async {
     // Get platform information
-    final platform = await CasdoorFlutterSdkPlatform.instance.getPlatformVersion() ?? "";
+    final platform =
+        await CasdoorFlutterSdkPlatform.instance.getPlatformVersion() ?? "";
     String callbackUri;
     if (platform == "web") {
       callbackUri = "${_config.redirectUri}.html";

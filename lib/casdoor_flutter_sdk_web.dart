@@ -14,7 +14,6 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:html' as html show window;
 import 'dart:html';
 import 'dart:js';
 
@@ -25,7 +24,8 @@ import 'casdoor_flutter_sdk_platform_interface.dart';
 
 class CasdoorFlutterSdkWeb extends CasdoorFlutterSdkPlatform {
   static void registerWith(Registrar registrar) {
-    final MethodChannel channel = MethodChannel('casdoor_flutter_sdk', const StandardMethodCodec(), registrar.messenger);
+    final MethodChannel channel = MethodChannel(
+        'casdoor_flutter_sdk', const StandardMethodCodec(), registrar);
     final CasdoorFlutterSdkWeb instance = CasdoorFlutterSdkWeb();
     channel.setMethodCallHandler(instance.handleMethodCall);
     CasdoorFlutterSdkPlatform.instance = instance;
@@ -69,7 +69,8 @@ class CasdoorFlutterSdkWeb extends CasdoorFlutterSdkPlatform {
         } on FormatException {}
       }
     }
-    throw PlatformException(code: 'error', message: 'Iterable window.onMessage is empty');
+    throw PlatformException(
+        code: 'error', message: 'Iterable window.onMessage is empty');
   }
 
   @override

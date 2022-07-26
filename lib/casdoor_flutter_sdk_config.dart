@@ -20,5 +20,11 @@ class AuthConfig {
   final String callbackUrlScheme;
   final String appName;
 
-  AuthConfig({required this.clientId, required this.endpoint, required this.organizationName, required this.appName, this.redirectUri = "casdoor://callback", this.callbackUrlScheme = "casdoor"});
+  AuthConfig(
+      {required this.clientId,
+      required this.endpoint,
+      required this.organizationName,
+      required this.appName,
+      this.redirectUri = "casdoor://callback",
+      this.callbackUrlScheme = "casdoor"});
 }

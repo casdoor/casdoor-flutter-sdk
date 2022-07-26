@@ -15,6 +15,7 @@
 import 'package:flutter/src/services/platform_channel.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:casdoor_flutter_sdk/casdoor_flutter_sdk_platform_interface.dart';
+import 'package:casdoor_flutter_sdk/casdoor_flutter_sdk.dart';
 import 'package:casdoor_flutter_sdk/casdoor_flutter_sdk_method_channel.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
@@ -40,7 +41,7 @@ void main() {
   });
 
   test('getPlatformVersion', () async {
-    MethodChannelCasdoorFlutterSdk casdoorFlutterSdkPlugin = MethodChannelCasdoorFlutterSdk();
+    CasdoorFlutterSdk casdoorFlutterSdkPlugin = CasdoorFlutterSdk();
     MockCasdoorFlutterSdkPlatform fakePlatform = MockCasdoorFlutterSdkPlatform();
     CasdoorFlutterSdkPlatform.instance = fakePlatform;
   
