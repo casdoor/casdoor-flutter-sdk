@@ -18,6 +18,7 @@ import 'package:http/http.dart' as http;
 import 'package:casdoor_flutter_sdk/casdoor_flutter_sdk_config.dart';
 import 'package:casdoor_flutter_sdk/casdoor_flutter_sdk_oauth.dart';
 import 'package:crypto/crypto.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 
 class Casdoor {
   final AuthConfig config;
@@ -36,6 +37,7 @@ class Casdoor {
       "scope": scope,
       "state": state ?? config.appName,
       "code_challenge_method": "S256",
+      "nonce": nonce,
       "code_challenge": generateCodeChallenge(codeVerifier),
       "redirect_uri": config.redirectUri
     });
@@ -48,6 +50,7 @@ class Casdoor {
       "scope": scope,
       "state": state ?? config.appName,
       "code_challenge_method": "S256",
+      "nonce": nonce,
       "code_challenge": generateCodeChallenge(codeVerifier),
       "redirect_uri": config.redirectUri
     });
@@ -68,6 +71,52 @@ class Casdoor {
           'code': code,
           'code_verifier': codeVerifier
         });
+  }
+
+  Future<http.Response> refreshToken(String refreshToken, String? clientSecret,
+      {String scope = "read"}) async {
+    return await http.post(
+        Uri.https(config.endpoint, "api/login/oauth/refresh_token"),
+        body: {
+          'grant_type': 'authorization_code',
+          'refresh_token': refreshToken,
+          'scope': scope,
+          'client_id': config.clientId,
+          'client_secret': clientSecret
+        });
+  }
+
+  Future<http.Response> tokenLogout(
+      String idTokenHint, String? postLogoutRedirectUri, String state) async {
+    return await http
+        .post(Uri.https(config.endpoint, "api/login/oauth/logout"), body: {
+      'id_token_hint ': idTokenHint,
+      'post_logout_redirect_uri': postLogoutRedirectUri,
+      'state ': state
+    });
+  }
+
+  Future<http.Response> getUserInfo(String accessToken) async {
+    return await http.post(
+      Uri.https(config.endpoint, "api/userinfo"),
+      headers: {"Authorization": "Bearer $accessToken"},
+    );
+  }
+
+  Map<String, dynamic> decodedToken(String token) {
+    Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+    return decodedToken;
+  }
+
+  bool isTokenExpired(String token) {
+    bool isTokenExpired = JwtDecoder.isExpired(token);
+    return isTokenExpired;
+  }
+
+  bool isNonce(String token) {
+    Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+    bool isNonce = decodedToken["nonce"] == nonce ? true : false;
+    return isNonce;
   }
 }
 
