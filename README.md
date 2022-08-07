@@ -134,7 +134,57 @@ Redirection URL passed to the authentication service must be the same as the URL
 
 For the Sign in with Apple in web_message response mode, postMessage from https://appleid.apple.com is also captured, and the authorization object is returned as a URL fragment encoded as a query string (for compatibility with other providers).
 
+# API reference interface
+#### Get sign up url
 
+```typescript
+getSignupUrl(enablePassword)
+```
+#### Get sign in url
+
+```typescript
+getSigninUrl()
+```
+#### Get code
+
+```typescript
+show()
+```
+#### Get token
+
+```typescript
+requestOauthAccessToken()
+```
+#### Refresh token
+
+```typescript
+refreshToken()
+```
+#### Log out
+
+```typescript
+tokenLogout()
+```
+#### Get user information
+
+```typescript
+getUserInfo()
+```
+#### Decode token
+
+```typescript
+decodedToken()
+```
+#### Judge whether the token is expired
+
+```typescript
+isTokenExpired()
+```
+#### Verify nonce
+
+```typescript
+isNonce()
+```
 # Example
 See at: https://github.com/casdoor/casdoor-flutter-example
 

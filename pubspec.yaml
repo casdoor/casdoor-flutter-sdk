@@ -1,6 +1,6 @@
 name: casdoor_flutter_sdk
 description: Casdoor_flutter_sdk will allow you to easily connect your application to the Casdoor authentication system without having to implement it from scratch.
-version: 0.0.2+4
+version: 0.0.2+5
 homepage: https://github.com/casdoor/casdoor-flutter-sdk
 
 environment:
@@ -15,6 +15,7 @@ dependencies:
   plugin_platform_interface: ^2.0.2
   http: ^0.13.4
   crypto: ^3.0.2
+  jwt_decoder: ^2.0.1
 
 dev_dependencies:
   flutter_test:
