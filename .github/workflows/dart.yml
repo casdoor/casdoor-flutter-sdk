@@ -16,7 +16,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-18.04, macos-11]
+        os: [ubuntu-20.04, macos-11]
 
     steps:
       - uses: actions/checkout@v1
@@ -42,7 +42,7 @@ jobs:
   publish:
     needs: test
     if: github.repository == 'casdoor/casdoor-flutter-sdk' && github.event_name == 'push'
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
       - uses: cedx/setup-dart@v2
@@ -61,10 +61,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN  }}
       - name: Checkout
         uses: actions/checkout@v1
-      - name: Dart and Flutter Package Publisher
-        uses: sakebook/actions-flutter-pub-publisher@v1.4.1
+      - name: Publish Dart/Flutter package
+        uses: k-paxian/dart-package-publisher@master
         with:
-          credential: ${{ secrets.CREDENTIAL_JSON }}
-          flutter_package: false
-          skip_test: true
-          dry_run: true
+            flutter: true
+            skipTests: true
+            credentialJson: ${{ secrets.CREDENTIAL_JSON }}
