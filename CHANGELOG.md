@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/casdoor/casdoor-flutter-sdk/compare/v1.0.0...v1.0.1) (2022-08-08)
+
+
+### Bug Fixes
+
+* GitHub release version doesn't match with the one in pub.dev ([#12](https://github.com/casdoor/casdoor-flutter-sdk/issues/12)) ([4e47ddb](https://github.com/casdoor/casdoor-flutter-sdk/commit/4e47ddb32a2733f502dae3e9b6f5ef20e8060fe2))
+
 # 1.0.0 (2022-08-07)
 
 
