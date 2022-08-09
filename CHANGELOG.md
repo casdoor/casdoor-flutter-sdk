@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/casdoor/casdoor-flutter-sdk/compare/v1.0.1...v1.0.2) (2022-08-09)
+
+
+### Bug Fixes
+
+* delete useless changelog ([#13](https://github.com/casdoor/casdoor-flutter-sdk/issues/13)) ([f59f752](https://github.com/casdoor/casdoor-flutter-sdk/commit/f59f75203cf0a969a91c8691ccd4f6e73bca78dc))
+
 ## [1.0.1](https://github.com/casdoor/casdoor-flutter-sdk/compare/v1.0.0...v1.0.1) (2022-08-08)
 
 
