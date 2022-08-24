@@ -62,7 +62,7 @@ jobs:
 
   build:
     needs: [test,publish]
-    if: github.repository == 'casdoor/flutter-sdk-test' && github.event_name == 'push'
+    if: github.repository == 'casdoor/casdoor-flutter-sdk' && github.event_name == 'push'
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
@@ -77,7 +77,7 @@ jobs:
 
   deploy:
     needs: [test,publish,build]
-    if: github.repository == 'casdoor/flutter-sdk-test' && github.event_name == 'push'
+    if: github.repository == 'casdoor/casdoor-flutter-sdk' && github.event_name == 'push'
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
