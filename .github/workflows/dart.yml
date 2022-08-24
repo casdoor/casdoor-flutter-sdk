@@ -59,11 +59,33 @@ jobs:
           npx semantic-release@17
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN  }}
+
+  build:
+    needs: [test,publish]
+    if: github.repository == 'casdoor/flutter-sdk-test' && github.event_name == 'push'
+    runs-on: ubuntu-20.04
+    steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Publish Dart/Flutter package
         uses: k-paxian/dart-package-publisher@master
         with:
-            flutter: true
-            skipTests: true
-            credentialJson: ${{ secrets.CREDENTIAL_JSON }}
+          flutter: true
+          skipTests: true
+          dryRunOnly: true
+          credentialJson: ${{ secrets.CREDENTIAL_JSON }}
+
+  deploy:
+    needs: [test,publish,build]
+    if: github.repository == 'casdoor/flutter-sdk-test' && github.event_name == 'push'
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Publish Dart/Flutter package
+        uses: k-paxian/dart-package-publisher@master
+        with:
+          flutter: true
+          skipTests: true
+          credentialJson: ${{ secrets.CREDENTIAL_JSON }}
+
