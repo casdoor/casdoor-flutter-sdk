@@ -1,3 +1,10 @@
+## [1.0.4](https://github.com/casdoor/casdoor-flutter-sdk/compare/v1.0.3...v1.0.4) (2022-08-24)
+
+
+### Bug Fixes
+
+* CI/CD ([#15](https://github.com/casdoor/casdoor-flutter-sdk/issues/15)) ([8c1a3f3](https://github.com/casdoor/casdoor-flutter-sdk/commit/8c1a3f354dfafdc2f997535f906314dc00d4b85a))
+
 ## [1.0.3](https://github.com/casdoor/casdoor-flutter-sdk/compare/v1.0.2...v1.0.3) (2022-08-24)
 
 
