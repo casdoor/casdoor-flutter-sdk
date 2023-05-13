@@ -29,6 +29,7 @@ class Casdoor {
     codeVerifier = generateRandomString(43);
     nonce = generateRandomString(12);
   }
+
   String parseScheme() {
     String scheme = "https";
     var uri = Uri.parse(config.serverUrl);
