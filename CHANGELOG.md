@@ -1,3 +1,15 @@
+# [1.1.0](https://github.com/casdoor/casdoor-flutter-sdk/compare/v1.0.4...v1.1.0) (2023-05-13)
+
+
+### Bug Fixes
+
+* change dart setup action to fix CI bug ([#23](https://github.com/casdoor/casdoor-flutter-sdk/issues/23)) ([34acd21](https://github.com/casdoor/casdoor-flutter-sdk/commit/34acd2116c6c4e8acba6fd5d914c496f8c3f5b14))
+
+
+### Features
+
+* support http scheme in serverUrl ([#20](https://github.com/casdoor/casdoor-flutter-sdk/issues/20)) ([a6da449](https://github.com/casdoor/casdoor-flutter-sdk/commit/a6da449670163c7901db685a17b57394ff58b899))
+
 ## [1.0.4](https://github.com/casdoor/casdoor-flutter-sdk/compare/v1.0.3...v1.0.4) (2022-08-24)
 
 
