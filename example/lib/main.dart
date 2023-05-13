@@ -36,7 +36,7 @@ class _MyAppState extends State<MyApp> {
 
   final AuthConfig _config = AuthConfig(
       clientId: "014ae4bd048734ca2dea",
-      endpoint: "door.casdoor.com",// use endpoint: "http://door.casdoor.com" to support http scheme
+      serverUrl: "door.casdoor.com",// use serverUrl: "http://door.casdoor.com" to support http scheme
       organizationName: "casbin",
       appName: "app-casnode",
       redirectUri: "http://localhost:9000/callback",

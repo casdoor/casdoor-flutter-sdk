@@ -31,7 +31,7 @@ class Casdoor {
   }
   String parseScheme() {
     String scheme = "https";
-    var uri = Uri.parse(config.endpoint);
+    var uri = Uri.parse(config.serverUrl);
     if (uri.hasScheme) {
       scheme = uri.scheme;
     }
@@ -39,7 +39,7 @@ class Casdoor {
   }
 
   String parseHost() {
-    var uri = Uri.parse(config.endpoint);
+    var uri = Uri.parse(config.serverUrl);
     return uri.host;
   }
 
