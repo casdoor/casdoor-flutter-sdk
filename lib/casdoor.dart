@@ -30,30 +30,52 @@ class Casdoor {
     nonce = generateRandomString(12);
   }
 
+  String parseScheme() {
+    String scheme = "https";
+    var uri = Uri.parse(config.serverUrl);
+    if (uri.hasScheme) {
+      scheme = uri.scheme;
+    }
+    return scheme;
+  }
+
+  String parseHost() {
+    var uri = Uri.parse(config.serverUrl);
+    return uri.host;
+  }
+
   Uri getSigninUrl({String scope = "read", String? state}) {
-    return Uri.https(config.endpoint, "login/oauth/authorize", {
-      "client_id": config.clientId,
-      "response_type": "code",
-      "scope": scope,
-      "state": state ?? config.appName,
-      "code_challenge_method": "S256",
-      "nonce": nonce,
-      "code_challenge": generateCodeChallenge(codeVerifier),
-      "redirect_uri": config.redirectUri
-    });
+    return Uri(
+        scheme: parseScheme(),
+        host: parseHost(),
+        path: "login/oauth/authorize",
+        queryParameters: {
+          "client_id": config.clientId,
+          "response_type": "code",
+          "scope": scope,
+          "state": state ?? config.appName,
+          "code_challenge_method": "S256",
+          "nonce": nonce,
+          "code_challenge": generateCodeChallenge(codeVerifier),
+          "redirect_uri": config.redirectUri
+        });
   }
 
   Uri getSignupUrl({String scope = "read", String? state}) {
-    return Uri.https(config.endpoint, "/signup/oauth/authorize", {
-      "client_id": config.clientId,
-      "response_type": "code",
-      "scope": scope,
-      "state": state ?? config.appName,
-      "code_challenge_method": "S256",
-      "nonce": nonce,
-      "code_challenge": generateCodeChallenge(codeVerifier),
-      "redirect_uri": config.redirectUri
-    });
+    return Uri(
+        scheme: parseScheme(),
+        host: parseHost(),
+        path: "/signup/oauth/authorize",
+        queryParameters: {
+          "client_id": config.clientId,
+          "response_type": "code",
+          "scope": scope,
+          "state": state ?? config.appName,
+          "code_challenge_method": "S256",
+          "nonce": nonce,
+          "code_challenge": generateCodeChallenge(codeVerifier),
+          "redirect_uri": config.redirectUri
+        });
   }
 
   Future<String> show({String scope = "read", String? state}) async {
@@ -64,7 +86,11 @@ class Casdoor {
 
   Future<http.Response> requestOauthAccessToken(String code) async {
     return await http.post(
-        Uri.https(config.endpoint, "api/login/oauth/access_token"),
+        Uri(
+          scheme: parseScheme(),
+          host: parseHost(),
+          path: "api/login/oauth/access_token",
+        ),
         body: {
           'client_id': config.clientId,
           'grant_type': 'authorization_code',
@@ -76,7 +102,11 @@ class Casdoor {
   Future<http.Response> refreshToken(String refreshToken, String? clientSecret,
       {String scope = "read"}) async {
     return await http.post(
-        Uri.https(config.endpoint, "api/login/oauth/refresh_token"),
+        Uri(
+          scheme: parseScheme(),
+          host: parseHost(),
+          path: "api/login/oauth/refresh_token",
+        ),
         body: {
           'grant_type': 'authorization_code',
           'refresh_token': refreshToken,
@@ -88,17 +118,26 @@ class Casdoor {
 
   Future<http.Response> tokenLogout(
       String idTokenHint, String? postLogoutRedirectUri, String state) async {
-    return await http
-        .post(Uri.https(config.endpoint, "api/login/oauth/logout"), body: {
-      'id_token_hint ': idTokenHint,
-      'post_logout_redirect_uri': postLogoutRedirectUri,
-      'state ': state
-    });
+    return await http.post(
+        Uri(
+          scheme: parseScheme(),
+          host: parseHost(),
+          path: "api/login/oauth/logout",
+        ),
+        body: {
+          'id_token_hint ': idTokenHint,
+          'post_logout_redirect_uri': postLogoutRedirectUri,
+          'state ': state
+        });
   }
 
   Future<http.Response> getUserInfo(String accessToken) async {
     return await http.post(
-      Uri.https(config.endpoint, "api/userinfo"),
+      Uri(
+        scheme: parseScheme(),
+        host: parseHost(),
+        path: "api/userinfo",
+      ),
       headers: {"Authorization": "Bearer $accessToken"},
     );
   }
