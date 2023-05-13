@@ -84,58 +84,59 @@ class Casdoor {
   }
 
   Future<http.Response> requestOauthAccessToken(String code) async {
-    var uri = Uri(
-      scheme: parseScheme(),
-      host: parseHost(),
-      path: "api/login/oauth/access_token",
-    );
-    return await http.post(uri, body: {
-      'client_id': config.clientId,
-      'grant_type': 'authorization_code',
-      'code': code,
-      'code_verifier': codeVerifier
-    });
+    return await http.post(
+        Uri(
+          scheme: parseScheme(),
+          host: parseHost(),
+          path: "api/login/oauth/access_token",
+        ),
+        body: {
+          'client_id': config.clientId,
+          'grant_type': 'authorization_code',
+          'code': code,
+          'code_verifier': codeVerifier
+        });
   }
 
   Future<http.Response> refreshToken(String refreshToken, String? clientSecret,
       {String scope = "read"}) async {
-    var uri = Uri(
-      scheme: parseScheme(),
-      host: parseHost(),
-      path: "api/login/oauth/refresh_token",
-    );
-
-    return await http.post(uri, body: {
-      'grant_type': 'authorization_code',
-      'refresh_token': refreshToken,
-      'scope': scope,
-      'client_id': config.clientId,
-      'client_secret': clientSecret
-    });
+    return await http.post(
+        Uri(
+          scheme: parseScheme(),
+          host: parseHost(),
+          path: "api/login/oauth/refresh_token",
+        ),
+        body: {
+          'grant_type': 'authorization_code',
+          'refresh_token': refreshToken,
+          'scope': scope,
+          'client_id': config.clientId,
+          'client_secret': clientSecret
+        });
   }
 
   Future<http.Response> tokenLogout(
       String idTokenHint, String? postLogoutRedirectUri, String state) async {
-    var uri = Uri(
-      scheme: parseScheme(),
-      host: parseHost(),
-      path: "api/login/oauth/logout",
-    );
-    return await http.post(uri, body: {
-      'id_token_hint ': idTokenHint,
-      'post_logout_redirect_uri': postLogoutRedirectUri,
-      'state ': state
-    });
+    return await http.post(
+        Uri(
+          scheme: parseScheme(),
+          host: parseHost(),
+          path: "api/login/oauth/logout",
+        ),
+        body: {
+          'id_token_hint ': idTokenHint,
+          'post_logout_redirect_uri': postLogoutRedirectUri,
+          'state ': state
+        });
   }
 
   Future<http.Response> getUserInfo(String accessToken) async {
-    var uri = Uri(
-      scheme: parseScheme(),
-      host: parseHost(),
-      path: "api/userinfo",
-    );
     return await http.post(
-      uri,
+      Uri(
+        scheme: parseScheme(),
+        host: parseHost(),
+        path: "api/userinfo",
+      ),
       headers: {"Authorization": "Bearer $accessToken"},
     );
   }
