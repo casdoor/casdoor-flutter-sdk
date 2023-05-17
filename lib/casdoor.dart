@@ -30,24 +30,21 @@ class Casdoor {
     nonce = generateRandomString(12);
   }
 
-  String parseScheme() {
+  (String, String, int) parseserverUrl() {
     String scheme = "https";
     var uri = Uri.parse(config.serverUrl);
     if (uri.hasScheme) {
       scheme = uri.scheme;
     }
-    return scheme;
-  }
-
-  String parseHost() {
-    var uri = Uri.parse(config.serverUrl);
-    return uri.host;
+    return (scheme, uri.host, uri.port);
   }
 
   Uri getSigninUrl({String scope = "read", String? state}) {
+    var (scheme, host, port) = parseserverUrl();
     return Uri(
-        scheme: parseScheme(),
-        host: parseHost(),
+        scheme: scheme,
+        host: host,
+        port: port,
         path: "login/oauth/authorize",
         queryParameters: {
           "client_id": config.clientId,
@@ -62,9 +59,11 @@ class Casdoor {
   }
 
   Uri getSignupUrl({String scope = "read", String? state}) {
+    var (scheme, host, port) = parseserverUrl();
     return Uri(
-        scheme: parseScheme(),
-        host: parseHost(),
+        scheme: scheme,
+        host: host,
+        port: port,
         path: "/signup/oauth/authorize",
         queryParameters: {
           "client_id": config.clientId,
@@ -85,10 +84,12 @@ class Casdoor {
   }
 
   Future<http.Response> requestOauthAccessToken(String code) async {
+    var (scheme, host, port) = parseserverUrl();
     return await http.post(
         Uri(
-          scheme: parseScheme(),
-          host: parseHost(),
+          scheme: scheme,
+          host: host,
+          port: port,
           path: "api/login/oauth/access_token",
         ),
         body: {
@@ -101,10 +102,12 @@ class Casdoor {
 
   Future<http.Response> refreshToken(String refreshToken, String? clientSecret,
       {String scope = "read"}) async {
+    var (scheme, host, port) = parseserverUrl();
     return await http.post(
         Uri(
-          scheme: parseScheme(),
-          host: parseHost(),
+          scheme: scheme,
+          host: host,
+          port: port,
           path: "api/login/oauth/refresh_token",
         ),
         body: {
@@ -118,10 +121,12 @@ class Casdoor {
 
   Future<http.Response> tokenLogout(
       String idTokenHint, String? postLogoutRedirectUri, String state) async {
+    var (scheme, host, port) = parseserverUrl();
     return await http.post(
         Uri(
-          scheme: parseScheme(),
-          host: parseHost(),
+          scheme: scheme,
+          host: host,
+          port: port,
           path: "api/login/oauth/logout",
         ),
         body: {
@@ -132,10 +137,12 @@ class Casdoor {
   }
 
   Future<http.Response> getUserInfo(String accessToken) async {
+    var (scheme, host, port) = parseserverUrl();
     return await http.post(
       Uri(
-        scheme: parseScheme(),
-        host: parseHost(),
+        scheme: scheme,
+        host: host,
+        port: port,
         path: "api/userinfo",
       ),
       headers: {"Authorization": "Bearer $accessToken"},
