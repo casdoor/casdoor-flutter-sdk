@@ -44,10 +44,16 @@ class Casdoor {
     return uri.host;
   }
 
+  int parsePort() {
+    var uri = Uri.parse(config.serverUrl);
+    return uri.port;
+  }
+
   Uri getSigninUrl({String scope = "read", String? state}) {
     return Uri(
         scheme: parseScheme(),
         host: parseHost(),
+        port: parsePort(),
         path: "login/oauth/authorize",
         queryParameters: {
           "client_id": config.clientId,
@@ -65,6 +71,7 @@ class Casdoor {
     return Uri(
         scheme: parseScheme(),
         host: parseHost(),
+        port: parsePort(),
         path: "/signup/oauth/authorize",
         queryParameters: {
           "client_id": config.clientId,
@@ -75,7 +82,8 @@ class Casdoor {
           "nonce": nonce,
           "code_challenge": generateCodeChallenge(codeVerifier),
           "redirect_uri": config.redirectUri
-        });
+        },
+    );
   }
 
   Future<String> show({String scope = "read", String? state}) async {
@@ -89,6 +97,7 @@ class Casdoor {
         Uri(
           scheme: parseScheme(),
           host: parseHost(),
+          port: parsePort(),
           path: "api/login/oauth/access_token",
         ),
         body: {
