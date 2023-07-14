@@ -44,10 +44,16 @@ class Casdoor {
     return uri.host;
   }
 
+  int parsePort() {
+    var uri = Uri.parse(config.serverUrl);
+    return uri.port;
+  }
+
   Uri getSigninUrl({String scope = "read", String? state}) {
     return Uri(
         scheme: parseScheme(),
         host: parseHost(),
+        port: parsePort(),
         path: "login/oauth/authorize",
         queryParameters: {
           "client_id": config.clientId,
@@ -65,6 +71,7 @@ class Casdoor {
     return Uri(
         scheme: parseScheme(),
         host: parseHost(),
+        port: parsePort(),
         path: "/signup/oauth/authorize",
         queryParameters: {
           "client_id": config.clientId,
@@ -89,6 +96,7 @@ class Casdoor {
         Uri(
           scheme: parseScheme(),
           host: parseHost(),
+          port: parsePort(),
           path: "api/login/oauth/access_token",
         ),
         body: {
@@ -105,6 +113,7 @@ class Casdoor {
         Uri(
           scheme: parseScheme(),
           host: parseHost(),
+          port: parsePort(),
           path: "api/login/oauth/refresh_token",
         ),
         body: {
@@ -122,6 +131,7 @@ class Casdoor {
         Uri(
           scheme: parseScheme(),
           host: parseHost(),
+          port: parsePort(),
           path: "api/login/oauth/logout",
         ),
         body: {
@@ -136,6 +146,7 @@ class Casdoor {
       Uri(
         scheme: parseScheme(),
         host: parseHost(),
+        port: parsePort(),
         path: "api/userinfo",
       ),
       headers: {"Authorization": "Bearer $accessToken"},
