@@ -16,7 +16,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-24.04, macos-11]
+        os: [ubuntu-latest, macos-latest]
 
     steps:
       - uses: actions/checkout@v1
@@ -42,13 +42,13 @@ jobs:
   publish:
     needs: test
     if: github.repository == 'casdoor/casdoor-flutter-sdk' && github.event_name == 'push'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: dart-lang/setup-dart@v1
       - uses: actions/setup-node@v2
         with:
-          node-version: 14
+          node-version: 18
       - run: npm install -g "@semantic-release/changelog"
       - run: npm install -g "@semantic-release/git"
       - run: npm install -g "pub-semantic-release"
@@ -63,7 +63,7 @@ jobs:
   build:
     needs: [test,publish]
     if: github.repository == 'casdoor/casdoor-flutter-sdk' && github.event_name == 'push'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -78,7 +78,7 @@ jobs:
   deploy:
     needs: [test,publish,build]
     if: github.repository == 'casdoor/casdoor-flutter-sdk' && github.event_name == 'push'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
