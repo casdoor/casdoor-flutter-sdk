@@ -16,7 +16,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-20.04, macos-11]
+        os: [ubuntu-22.04, macos-11]
 
     steps:
       - uses: actions/checkout@v1
@@ -42,7 +42,7 @@ jobs:
   publish:
     needs: test
     if: github.repository == 'casdoor/casdoor-flutter-sdk' && github.event_name == 'push'
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
       - uses: dart-lang/setup-dart@v1
@@ -63,7 +63,7 @@ jobs:
   build:
     needs: [test,publish]
     if: github.repository == 'casdoor/casdoor-flutter-sdk' && github.event_name == 'push'
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -78,7 +78,7 @@ jobs:
   deploy:
     needs: [test,publish,build]
     if: github.repository == 'casdoor/casdoor-flutter-sdk' && github.event_name == 'push'
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
