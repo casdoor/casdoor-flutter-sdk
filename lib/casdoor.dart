@@ -82,8 +82,7 @@ class Casdoor {
           "nonce": nonce,
           "code_challenge": generateCodeChallenge(codeVerifier),
           "redirect_uri": config.redirectUri
-        },
-    );
+          });
   }
 
   Future<String> show({String scope = "read", String? state}) async {
