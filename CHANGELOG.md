@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/casdoor/casdoor-flutter-sdk/compare/v1.1.0...v1.2.0) (2023-07-14)
+
+
+### Features
+
+* add parsePort() method to fix bugs ([#25](https://github.com/casdoor/casdoor-flutter-sdk/issues/25)) ([9d1fa63](https://github.com/casdoor/casdoor-flutter-sdk/commit/9d1fa634e3d28c8cc0396405d336e89cb959fa56))
+
 # [1.1.0](https://github.com/casdoor/casdoor-flutter-sdk/compare/v1.0.4...v1.1.0) (2023-05-13)
 
 
