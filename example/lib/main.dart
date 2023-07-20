@@ -63,10 +63,17 @@ class _MyAppState extends State<MyApp> {
     final result = await _casdoor.show();
     // Get code
     final code = Uri.parse(result).queryParameters['code'] ?? "";
-    final response = await _casdoor.requestOauthAccessToken(code);
-    setState(() {
-      _token = jsonDecode(response.body)["access_token"] as String;
-    });
+    if(_token == 'User is not logged in') {
+      final response = await _casdoor.requestOauthAccessToken(code);
+      setState(() {
+        _token = jsonDecode(response.body)["access_token"] as String;
+      });
+    } else {
+      await _casdoor.tokenLogout('idTokenHint', 'postLogoutRedirectUri', 'state');
+      setState(() {
+        _token = 'User is not logged in';
+      });
+    }
   }
 
   @override
@@ -81,7 +88,7 @@ class _MyAppState extends State<MyApp> {
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: authenticate,
-            tooltip: 'Authenticate',
+            tooltip: _token == 'User is not logged in' ? 'Authenticate' : 'Logout',
             child: const Icon(Icons.people),
           )),
     );

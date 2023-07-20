@@ -132,7 +132,7 @@ class Casdoor {
           scheme: parseScheme(),
           host: parseHost(),
           port: parsePort(),
-          path: "api/login/oauth/logout",
+          path: "api/logout",
         ),
         body: {
           'id_token_hint ': idTokenHint,
