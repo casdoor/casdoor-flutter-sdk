@@ -38,6 +38,13 @@ class CasdoorOauth {
     return CasdoorFlutterSdkPlatform.instance.getPlatformVersion();
   }
 
+  static Future<String> registerWXApi({required String app_id, required String universal_link}) async {
+    return await _channel.invokeMethod('registerWXApi', <String, dynamic>{
+      'app_id': app_id,
+      'universal_link': universal_link,
+    }) as String;
+  }
+
   static final _OnAppLifecycleResumeObserver _resumedObserver =
       _OnAppLifecycleResumeObserver(() {
     _cleanUpDanglingCalls(); // unawaited
