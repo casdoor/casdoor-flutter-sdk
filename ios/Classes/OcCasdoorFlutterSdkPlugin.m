@@ -15,13 +15,13 @@
 #import <Foundation/Foundation.h>
 #import "CasdoorFlutterSdkPlugin.h"
 #import <UIKit/UIKit.h>
-#import <WXApiObject.h>
-#import <WXApi.h>
-#import <WechatAuthSDK.h>
+// #import <WXApiObject.h>
+// #import <WXApi.h>
+// #import <WechatAuthSDK.h>
 @import WebKit;
 
-#define APP_ID @"wx049c70e6c2027b0b"
-#define UNIVERSAL_LINK @"https://testdomain.com"
+// #define APP_ID @"wx049c70e6c2027b0b"
+// #define UNIVERSAL_LINK @"https://testdomain.com"
 
 
 typedef void (^AuthResultCallback)(NSString *);
@@ -88,59 +88,59 @@ typedef void (^AuthResultCallback)(NSString *);
         NSString *app_id = arguments[@"app_id"];
         NSString *universal_link = arguments[@"universal_link"];
         // register WeChat
-        BOOL isWeChatRegistered = [WXApi registerApp:app_id universalLink:universal_link];
-        NSLog(@"Is WeChat Registered: %@",  isWeChatRegistered ? @"YES" : @"NO");
+//         BOOL isWeChatRegistered = [WXApi registerApp:app_id universalLink:universal_link];
+//         NSLog(@"Is WeChat Registered: %@",  isWeChatRegistered ? @"YES" : @"NO");
     }else {
         result(FlutterMethodNotImplemented);
     }
 }
 
-- (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url {
-    return  [WXApi handleOpenURL:url delegate:self];
-}
+// - (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url {
+//     return  [WXApi handleOpenURL:url delegate:self];
+// }
 
-- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
-    return [WXApi handleOpenURL:url delegate:self];
-}
+// - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
+//     return [WXApi handleOpenURL:url delegate:self];
+// }
 
-- (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void(^)(NSArray<id<UIUserActivityRestoring>> * __nullable restorableObjects))restorationHandler {
-    return [WXApi handleOpenUniversalLink:userActivity delegate:self];
-}
+// - (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void(^)(NSArray<id<UIUserActivityRestoring>> * __nullable restorableObjects))restorationHandler {
+//     return [WXApi handleOpenUniversalLink:userActivity delegate:self];
+// }
 
--(void) onReq:(BaseReq*)reqonReq {
+// -(void) onReq:(BaseReq*)reqonReq {
+//
+// }
 
-}
-
--(void) onResp:(BaseResp*)resp {
-    /*
-    enum WXErrCode {
-    WXSuccess = 0, 成功
-    WXErrCodeCommon = -1, 普通错误类型
-    WXErrCodeUserCancel = -2, 用户点击取消并返回
-    WXErrCodeSentFail = -3, 发送失败
-    WXErrCodeAuthDeny = -4, 授权失败
-    WXErrCodeUnsupport = -5, 微信不支持
-    };
-    */
-    if (resp.errCode == 0) { //Success
-        NSLog(@"Login Success.");
-        SendAuthResp *resp2 = (SendAuthResp *)resp;
-        NSLog(@"code: %@", resp2.code);
-
-    }else{ //Failed
-        NSLog(@"error %@", resp.errStr);
-        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Login failed." message:[NSString stringWithFormat:@"reason: %@", resp.errStr] preferredStyle:UIAlertControllerStyleAlert];
-
-        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancle" style:UIAlertActionStyleCancel handler:nil];
-        UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Confirm" style:UIAlertActionStyleDefault handler:nil];
-
-        [alertController addAction:cancelAction];
-        [alertController addAction:confirmAction];
-
-        UIViewController *rootViewController = UIApplication.sharedApplication.keyWindow.rootViewController;
-        [rootViewController presentViewController:alertController animated:YES completion:nil];
-    }
-}
+// -(void) onResp:(BaseResp*)resp {
+//     /*
+//     enum WXErrCode {
+//     WXSuccess = 0, 成功
+//     WXErrCodeCommon = -1, 普通错误类型
+//     WXErrCodeUserCancel = -2, 用户点击取消并返回
+//     WXErrCodeSentFail = -3, 发送失败
+//     WXErrCodeAuthDeny = -4, 授权失败
+//     WXErrCodeUnsupport = -5, 微信不支持
+//     };
+//     */
+//     if (resp.errCode == 0) { //Success
+//         NSLog(@"Login Success.");
+//         SendAuthResp *resp2 = (SendAuthResp *)resp;
+//         NSLog(@"code: %@", resp2.code);
+//
+//     }else{ //Failed
+//         NSLog(@"error %@", resp.errStr);
+//         UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Login failed." message:[NSString stringWithFormat:@"reason: %@", resp.errStr] preferredStyle:UIAlertControllerStyleAlert];
+//
+//         UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancle" style:UIAlertActionStyleCancel handler:nil];
+//         UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Confirm" style:UIAlertActionStyleDefault handler:nil];
+//
+//         [alertController addAction:cancelAction];
+//         [alertController addAction:confirmAction];
+//
+//         UIViewController *rootViewController = UIApplication.sharedApplication.keyWindow.rootViewController;
+//         [rootViewController presentViewController:alertController animated:YES completion:nil];
+//     }
+// }
 
 #pragma mark - WKNavigationDelegate
 
@@ -172,10 +172,10 @@ typedef void (^AuthResultCallback)(NSString *);
 //                NSLog(@"%@, %u, %@, %@", @(step), result.success, result.errorInfo, result.suggestion);
 //            }];
 
-            SendAuthReq *req = [[SendAuthReq alloc]init];
-            req.scope = @"snsapi_userinfo";
-            req.state = @"wx_oauth_authorization_state";
-            [WXApi sendReq:req completion:nil];
+//            SendAuthReq *req = [[SendAuthReq alloc]init];
+//            req.scope = @"snsapi_userinfo";
+//            req.state = @"wx_oauth_authorization_state";
+//            [WXApi sendReq:req completion:nil];
 
 
             decisionHandler(WKNavigationActionPolicyCancel);
