@@ -38,7 +38,8 @@ class CasdoorOauth {
     return CasdoorFlutterSdkPlatform.instance.getPlatformVersion();
   }
 
-  static Future<String> registerWXApi({required String appId, required String universalLink}) async {
+  static Future<String> registerWXApi(
+      {required String appId, required String universalLink}) async {
     return await _channel.invokeMethod('registerWXApi', <String, dynamic>{
       'app_id': appId,
       'universal_link': universalLink,
