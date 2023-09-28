@@ -143,6 +143,12 @@ Redirection URL passed to the authentication service must be the same as the URL
 
 For the Sign in with Apple in web_message response mode, postMessage from https://appleid.apple.com is also captured, and the authorization object is returned as a URL fragment encoded as a query string (for compatibility with other providers).
 
+## Support WeChat third-party login on iOS.
+The current SDK will display the scan code login after clicking the WeChat third-party login on the web page. It is obviously unreasonable to scan the code on the mobile end.
+
+If you want to click the WeChat login button on the webpage on the iOS mobile terminal to invoke the WeChat native jump login, you need to refer to the [WeChat iOS access guide](https://developers.weixin.qq.com/doc/oplatform/Mobile_App/Access_Guide/iOS.html) to access the WechatOpenSDK-XCFramework of the WeChat SDK, and then untie the comments about the WeChat part in OcCasdoorFlutterSdkPlugin.m, in Fill in app_id and universal_link in the corresponding position.
+
+
 # API reference interface
 
 #### Get sign up url
