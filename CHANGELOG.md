@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/casdoor/casdoor-flutter-sdk/compare/v1.2.0...v1.3.0) (2023-09-28)
+
+
+### Features
+
+* change refreshToken()'s grant_type to "refresh_token" ([#31](https://github.com/casdoor/casdoor-flutter-sdk/issues/31)) ([4cfea56](https://github.com/casdoor/casdoor-flutter-sdk/commit/4cfea562784868b36a25c2d90decee747fe5fe1e))
+
 # [1.2.0](https://github.com/casdoor/casdoor-flutter-sdk/compare/v1.1.0...v1.2.0) (2023-07-14)
 
 
