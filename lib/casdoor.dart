@@ -117,7 +117,7 @@ class Casdoor {
           path: "api/login/oauth/refresh_token",
         ),
         body: {
-          'grant_type': 'authorization_code',
+          'grant_type': 'refresh_token',
           'refresh_token': refreshToken,
           'scope': scope,
           'client_id': config.clientId,
