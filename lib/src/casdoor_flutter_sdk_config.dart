@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import 'package:flutter/widgets.dart';
+
 class AuthConfig {
   final String clientId;
   final String serverUrl;
@@ -27,4 +29,43 @@ class AuthConfig {
       required this.appName,
       this.redirectUri = "casdoor://callback",
       this.callbackUrlScheme = "casdoor"});
+}
+
+class CasdoorSdkParams {
+  CasdoorSdkParams({
+    required this.url,
+    required this.callbackUrlScheme,
+    this.buildContext,
+    this.showFullscreen,
+    this.isMaterialStyle,
+    this.preferEphemeral,
+    this.clearCache,
+  });
+
+  final String url;
+  final String callbackUrlScheme;
+  BuildContext? buildContext;
+  bool? showFullscreen;
+  bool? isMaterialStyle;
+  bool? preferEphemeral;
+  bool? clearCache;
+
+  CasdoorSdkParams copyWith({
+    String? url,
+    String? callbackUrlScheme,
+    BuildContext? buildContext,
+    bool? showFullscreen,
+    bool? isMaterialStyle,
+    bool? preferEphemeral,
+    bool? clearCache,
+  }) =>
+      CasdoorSdkParams(
+        url: url ?? this.url,
+        callbackUrlScheme: callbackUrlScheme ?? this.callbackUrlScheme,
+        buildContext: buildContext ?? this.buildContext,
+        showFullscreen: showFullscreen ?? this.showFullscreen,
+        isMaterialStyle: isMaterialStyle ?? this.isMaterialStyle,
+        preferEphemeral: preferEphemeral ?? this.preferEphemeral,
+        clearCache: clearCache ?? this.clearCache,
+      );
 }
