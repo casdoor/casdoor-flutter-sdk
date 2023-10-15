@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/casdoor/casdoor-flutter-sdk/compare/v1.3.0...v1.4.0) (2023-10-15)
+
+
+### Features
+
+* switch to webview plugins ([#33](https://github.com/casdoor/casdoor-flutter-sdk/issues/33)) ([14dfbb4](https://github.com/casdoor/casdoor-flutter-sdk/commit/14dfbb4210f77d790e478e78c15b6aec484dbbb5))
+
 # [1.3.0](https://github.com/casdoor/casdoor-flutter-sdk/compare/v1.2.0...v1.3.0) (2023-09-28)
 
 
