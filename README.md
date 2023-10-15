@@ -14,8 +14,10 @@ The following platforms are supported:
 
 - Android
 - iOS
+- Linux
 - macOS
 - Web
+- Windows
 
 | **Android**                    | **iOS**                | **Web**                |
 | ------------------------------ | ---------------------- | ---------------------- |
