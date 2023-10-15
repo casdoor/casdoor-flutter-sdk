@@ -17,37 +17,20 @@ import 'dart:convert';
 import 'dart:html';
 import 'dart:js';
 
+import 'package:casdoor_flutter_sdk/casdoor_flutter_sdk.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 
-import 'casdoor_flutter_sdk_platform_interface.dart';
-
 class CasdoorFlutterSdkWeb extends CasdoorFlutterSdkPlatform {
+  CasdoorFlutterSdkWeb() : super.create();
+
   static void registerWith(Registrar registrar) {
-    final MethodChannel channel = MethodChannel(
-        'casdoor_flutter_sdk', const StandardMethodCodec(), registrar);
-    final CasdoorFlutterSdkWeb instance = CasdoorFlutterSdkWeb();
-    channel.setMethodCallHandler(instance.handleMethodCall);
-    CasdoorFlutterSdkPlatform.instance = instance;
+    CasdoorFlutterSdkPlatform.instance = CasdoorFlutterSdkWeb();
   }
 
-  Future<dynamic> handleMethodCall(MethodCall call) async {
-    switch (call.method) {
-      case 'authenticate':
-        final String url = call.arguments['url'];
-        return _authenticate(url);
-      case 'getPlatformVersion':
-        return await getPlatformVersion();
-      default:
-        throw PlatformException(
-            code: 'Unimplemented',
-            details: "The flutter_web_auth plugin for web doesn't implement "
-                "the method '${call.method}'");
-    }
-  }
-
-  static Future<String> _authenticate(String url) async {
-    context.callMethod('open', [url]);
+  @override
+  Future<String> authenticate(CasdoorSdkParams params) async {
+    context.callMethod('open', [params.url]);
     await for (MessageEvent messageEvent in window.onMessage) {
       if (messageEvent.origin == Uri.base.origin) {
         final flutterWebAuthMessage = messageEvent.data['casdoor-auth'];
@@ -55,14 +38,17 @@ class CasdoorFlutterSdkWeb extends CasdoorFlutterSdkPlatform {
           return flutterWebAuthMessage;
         }
       }
-      var appleOrigin = Uri(scheme: 'https', host: 'appleid.apple.com');
+      final appleOrigin = Uri(scheme: 'https', host: 'appleid.apple.com');
       if (messageEvent.origin == appleOrigin.toString()) {
         try {
-          Map<String, dynamic> data = jsonDecode(messageEvent.data);
+          final Map<String, dynamic> data =
+              jsonDecode(messageEvent.data as String) as Map<String, dynamic>;
           if (data['method'] == 'oauthDone') {
             final appleAuth = data['data']['authorization'];
             if (appleAuth != null) {
-              final appleAuthQuery = Uri(queryParameters: appleAuth).query;
+              final appleAuthQuery =
+                  Uri(queryParameters: appleAuth as Map<String, dynamic>?)
+                      .query;
               return appleOrigin.replace(fragment: appleAuthQuery).toString();
             }
           }
@@ -74,7 +60,7 @@ class CasdoorFlutterSdkWeb extends CasdoorFlutterSdkPlatform {
   }
 
   @override
-  Future<String?> getPlatformVersion() async {
-    return "web";
+  Future<String> getPlatformVersion() async {
+    return 'web';
   }
 }

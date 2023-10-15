@@ -12,23 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:flutter/services.dart';
+import 'package:casdoor_flutter_sdk/casdoor_flutter_sdk.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'casdoor_flutter_sdk_method_channel.dart';
 
 abstract class CasdoorFlutterSdkPlatform extends PlatformInterface {
-  /// Constructs a CasdoorFlutterSdkPlatform.
-  CasdoorFlutterSdkPlatform() : super(token: _token);
+  // Returns singleton instance.
+  factory CasdoorFlutterSdkPlatform() => _instance;
 
-  static final Object _token = Object();
+  CasdoorFlutterSdkPlatform.create() : super(token: _token);
 
   static CasdoorFlutterSdkPlatform _instance = MethodChannelCasdoorFlutterSdk();
-
-  /// The default instance of [CasdoorFlutterSdkPlatform] to use.
-  ///
-  /// Defaults to [MethodChannelCasdoorFlutterSdk].
-  static CasdoorFlutterSdkPlatform get instance => _instance;
 
   /// Platform-specific implementations should set this with their own
   /// platform-specific class that extends [CasdoorFlutterSdkPlatform] when
@@ -38,11 +33,17 @@ abstract class CasdoorFlutterSdkPlatform extends PlatformInterface {
     _instance = instance;
   }
 
-  MethodChannel getMethodChannel() {
-    return const MethodChannel('casdoor_flutter_sdk');
+  static final Object _token = Object();
+
+  Future<String> getPlatformVersion() {
+    throw UnimplementedError('platformVersion() has not been implemented.');
   }
 
-  Future<String?> getPlatformVersion() {
-    throw UnimplementedError('platformVersion() has not been implemented.');
+  Future<bool> clearCache() {
+    throw UnimplementedError('clearCache() has not been implemented.');
+  }
+
+  Future<String> authenticate(CasdoorSdkParams params) {
+    throw UnimplementedError('authenticate() has not been implemented.');
   }
 }

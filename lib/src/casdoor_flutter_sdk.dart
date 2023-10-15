@@ -9,6 +9,6 @@ import 'casdoor_flutter_sdk_platform_interface.dart';
 
 class CasdoorFlutterSdk {
   Future<String?> getPlatformVersion() {
-    return CasdoorFlutterSdkPlatform.instance.getPlatformVersion();
+    return CasdoorFlutterSdkPlatform().getPlatformVersion();
   }
 }
