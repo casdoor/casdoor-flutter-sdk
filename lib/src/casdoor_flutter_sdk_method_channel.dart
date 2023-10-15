@@ -12,14 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'casdoor_flutter_sdk_platform_interface.dart';
+import 'package:casdoor_flutter_sdk/casdoor_flutter_sdk.dart';
+import 'package:flutter/services.dart';
 
 /// An implementation of [CasdoorFlutterSdkPlatform] that uses method channels.
 class MethodChannelCasdoorFlutterSdk extends CasdoorFlutterSdkPlatform {
+  MethodChannelCasdoorFlutterSdk() : super.create();
+
+  static const MethodChannel _channel = MethodChannel('casdoor_flutter_sdk');
+
   @override
-  Future<String?> getPlatformVersion() async {
+  Future<bool> clearCache() async {
+    return await _channel
+        .invokeMethod('clearCache')
+        .catchError((err) => throw (Exception(err))) as bool;
+  }
+
+  @override
+  Future<String> authenticate(CasdoorSdkParams params) async {
+    return await _channel.invokeMethod('authenticate', <String, dynamic>{
+      'params': params,
+    }).catchError((err) => throw (Exception(err))) as String;
+  }
+
+  @override
+  Future<String> getPlatformVersion() async {
     final version =
-        await getMethodChannel().invokeMethod<String>('getPlatformVersion');
+        await _channel.invokeMethod<String>('getPlatformVersion') ?? '';
     return version;
   }
 }

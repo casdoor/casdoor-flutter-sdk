@@ -12,7 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <Flutter/Flutter.h>
+class CasdoorAuthCancelledException implements Exception {}
 
-@interface CasdoorFlutterSdkPlugin : NSObject<FlutterPlugin>
-@end
+class CasdoorDesktopWebViewNotAvailableException implements Exception {}
+
+class CasdoorDesktopWebViewAlreadyOpenException implements Exception {}
+
+class CasdoorMobileWebAuthSessionNotAvailableException implements Exception {}
+
+class CasdoorMobileWebAuthSessionFailedException implements Exception {}

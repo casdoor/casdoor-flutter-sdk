@@ -12,19 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-class AuthConfig {
-  final String clientId;
-  final String serverUrl;
-  final String organizationName;
-  String redirectUri;
-  final String callbackUrlScheme;
-  final String appName;
+import 'dart:async';
 
-  AuthConfig(
-      {required this.clientId,
-      required this.serverUrl,
-      required this.organizationName,
-      required this.appName,
-      this.redirectUri = "casdoor://callback",
-      this.callbackUrlScheme = "casdoor"});
+import 'package:casdoor_flutter_sdk/casdoor_flutter_sdk.dart';
+
+class CasdoorOauth {
+  Future<String?> getPlatformVersion() {
+    return CasdoorFlutterSdkPlatform().getPlatformVersion();
+  }
+
+  static Future<String> authenticate(CasdoorSdkParams params) async {
+    try {
+      return CasdoorFlutterSdkPlatform().authenticate(params);
+    } catch (_) {
+      rethrow;
+    }
+  }
+
+  static Future<bool> clearCache() async {
+    try {
+      return CasdoorFlutterSdkPlatform().clearCache();
+    } catch (_) {
+      rethrow;
+    }
+  }
 }

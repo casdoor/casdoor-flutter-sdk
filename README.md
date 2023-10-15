@@ -14,8 +14,10 @@ The following platforms are supported:
 
 - Android
 - iOS
+- Linux
 - macOS
 - Web
+- Windows
 
 | **Android**                    | **iOS**                | **Web**                |
 | ------------------------------ | ---------------------- | ---------------------- |
@@ -103,23 +105,26 @@ dependencies:
   casdoor_flutter_sdk: ^1.0.0
 ```
 
-Note here that for Android and Web
+Notes for different platforms:
+
+## Android and iOS
+
+Please check the [documentation](https://inappwebview.dev/docs/intro) of the InAppWebView package for more details.
 
 ## Android
 
-In order to capture the callback url, the following activity needs to be added to your AndroidManifest.xml. Be sure to relpace YOUR_CALLBACK_URL_SCHEME_HERE with your actual callback url scheme.
+Increase the SDK version in `android/app/build.gradle` to 34:
 
 ```
- <activity android:name="com.example.casdoor_flutter_sdk.CallbackActivity"
-           android:exported="true">
-           <intent-filter android:label="casdoor_flutter_sdk">
-               <action android:name="android.intent.action.VIEW" />
-               <category android:name="android.intent.category.DEFAULT" />
-               <category android:name="android.intent.category.BROWSABLE" />
-               <data android:scheme="casdoor" />
-           </intent-filter>
-       </activity>
+...
+android {
+    compileSdkVersion 34
+...
 ```
+
+## Windows and Linux
+
+Please check the [documentation](https://pub.dev/packages/desktop_webview_window) of the desktop_webview_window package for more details.
 
 ## Web
 
@@ -157,10 +162,16 @@ getSignupUrl(enablePassword)
 getSigninUrl()
 ```
 
-#### Get code
+#### Get code in a new window (all platforms)
 
 ```typescript
 show()
+```
+
+#### Get code inside the app (Android and iOS)
+
+```typescript
+showFullscreen()
 ```
 
 #### Get token
