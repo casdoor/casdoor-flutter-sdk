@@ -12,12 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import 'package:casdoor_flutter_sdk/src/casdoor_flutter_sdk_method_channel.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:casdoor_flutter_sdk/casdoor_flutter_sdk_method_channel.dart';
 
 void main() {
-  MethodChannelCasdoorFlutterSdk platform = MethodChannelCasdoorFlutterSdk();
+  final MethodChannelCasdoorFlutterSdk platform =
+      MethodChannelCasdoorFlutterSdk();
   const MethodChannel channel = MethodChannel('casdoor_flutter_sdk');
 
   TestWidgetsFlutterBinding.ensureInitialized();

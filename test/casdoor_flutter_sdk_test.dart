@@ -12,37 +12,41 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:flutter/src/services/platform_channel.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:casdoor_flutter_sdk/casdoor_flutter_sdk_platform_interface.dart';
 import 'package:casdoor_flutter_sdk/casdoor_flutter_sdk.dart';
-import 'package:casdoor_flutter_sdk/casdoor_flutter_sdk_method_channel.dart';
+import 'package:casdoor_flutter_sdk/src/casdoor_flutter_sdk.dart';
+import 'package:casdoor_flutter_sdk/src/casdoor_flutter_sdk_method_channel.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 class MockCasdoorFlutterSdkPlatform
     with MockPlatformInterfaceMixin
     implements CasdoorFlutterSdkPlatform {
   @override
-  Future<String?> getPlatformVersion() => Future.value('42');
+  Future<String> getPlatformVersion() => Future.value('42');
 
   @override
-  MethodChannel getMethodChannel() {
-    // TODO: implement getMethodChannel
+  Future<bool> clearCache() {
+    // TODO: implement clearCache
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<String> authenticate(CasdoorSdkParams params) {
+    // TODO: implement authenticate
     throw UnimplementedError();
   }
 }
 
 void main() {
-  final CasdoorFlutterSdkPlatform initialPlatform =
-      CasdoorFlutterSdkPlatform.instance;
+  final CasdoorFlutterSdkPlatform initialPlatform = CasdoorFlutterSdkPlatform();
 
   test('$MethodChannelCasdoorFlutterSdk is the default instance', () {
     expect(initialPlatform, isInstanceOf<MethodChannelCasdoorFlutterSdk>());
   });
 
   test('getPlatformVersion', () async {
-    CasdoorFlutterSdk casdoorFlutterSdkPlugin = CasdoorFlutterSdk();
-    MockCasdoorFlutterSdkPlatform fakePlatform =
+    final CasdoorFlutterSdk casdoorFlutterSdkPlugin = CasdoorFlutterSdk();
+    final MockCasdoorFlutterSdkPlatform fakePlatform =
         MockCasdoorFlutterSdkPlatform();
     CasdoorFlutterSdkPlatform.instance = fakePlatform;
 
