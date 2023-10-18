@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import 'package:casdoor_flutter_sdk/casdoor_flutter_sdk.dart';
-import 'package:casdoor_flutter_sdk/src/casdoor_flutter_sdk.dart';
 import 'package:casdoor_flutter_sdk/src/casdoor_flutter_sdk_method_channel.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
@@ -45,11 +44,10 @@ void main() {
   });
 
   test('getPlatformVersion', () async {
-    final CasdoorFlutterSdk casdoorFlutterSdkPlugin = CasdoorFlutterSdk();
     final MockCasdoorFlutterSdkPlatform fakePlatform =
         MockCasdoorFlutterSdkPlatform();
     CasdoorFlutterSdkPlatform.instance = fakePlatform;
 
-    expect(await casdoorFlutterSdkPlugin.getPlatformVersion(), '42');
+    expect(await CasdoorFlutterSdkPlatform().getPlatformVersion(), '42');
   });
 }
