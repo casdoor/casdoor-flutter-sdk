@@ -224,7 +224,7 @@ isNonce()
 
 ## Windows
 
-There is a known bug in the *desktop_webview_window* pacakge that causes random crashes of the browser window (see [issue](https://github.com/MixinNetwork/flutter-plugins/issues/283)).
+There is a known bug in the desktop_webview_window package that causes random crashes of the browser window (see [issue](https://github.com/MixinNetwork/flutter-plugins/issues/283)).
 
 ## Linux (Ubuntu)
 
