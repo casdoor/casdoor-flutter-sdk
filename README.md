@@ -67,7 +67,7 @@ Initialization requires 6 parameters, which are all str type:
 Set the callbackuri parameter by judging different platforms
 
 ```
- final platform = await CasdoorFlutterSdkPlatform.instance.getPlatformVersion() ?? "";
+ final platform = await CasdoorFlutterSdkPlatform.getPlatformVersion();
     String callbackUri;
     if (platform == "web") {
        callbackUri = "${_config.redirectUri}.html";
@@ -109,20 +109,24 @@ Notes for different platforms:
 
 ## Android and iOS
 
-Please check the [documentation](https://inappwebview.dev/docs/intro) of the InAppWebView package for more details.
+Please check the [documentation](https://inappwebview.dev/docs/intro) of the InAppWebView package for more details about setting up the project.
 
-## Android
+## Linux and macOS
 
-Increase the SDK version in `android/app/build.gradle` to 34:
+Add the package `desktop_webview_window: ^0.2.3` inside *dependencies* to your *pubspec.yaml* file.
+
+Modify your *main* function to look like the following:
 
 ```
-...
-android {
-    compileSdkVersion 34
-...
+void main(List<String> args) async {
+  WidgetsFlutterBinding.ensureInitialized();
+  if (runWebViewTitleBarWidget(args)) {
+    return;
+  }
+  // your code goes here ...
+  runApp(const MyApp());
+}
 ```
-
-## Windows and Linux
 
 Please check the [documentation](https://pub.dev/packages/desktop_webview_window) of the desktop_webview_window package for more details.
 
@@ -215,6 +219,20 @@ isTokenExpired()
 ```typescript
 isNonce()
 ```
+
+# Caveats
+
+## Windows
+
+There is a known bug in the desktop_webview_window package that causes random crashes of the browser window (see [issue](https://github.com/MixinNetwork/flutter-plugins/issues/283)).
+
+## Linux (Ubuntu)
+
+Do not install Flutter or Visual Studio Code using Snap as this will prevent the code from building or running successfully. You need to install the Flutter and Visual Studio Code packages manually.
+
+## macOS
+
+There are instances where JavaScript is not working inside WKWebView. Please report any bugs that may occur.
 
 # Example
 

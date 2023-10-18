@@ -24,15 +24,18 @@ class MethodChannelCasdoorFlutterSdk extends CasdoorFlutterSdkPlatform {
   @override
   Future<bool> clearCache() async {
     return await _channel
-        .invokeMethod('clearCache')
-        .catchError((err) => throw (Exception(err))) as bool;
+            .invokeMethod<bool>('clearCache')
+            .catchError((err) => throw (Exception(err))) ??
+        false;
   }
 
   @override
   Future<String> authenticate(CasdoorSdkParams params) async {
-    return await _channel.invokeMethod('authenticate', <String, dynamic>{
-      'params': params,
-    }).catchError((err) => throw (Exception(err))) as String;
+    return await _channel
+            .invokeMethod<String>('authenticate', <String, dynamic>{
+          'params': params,
+        }).catchError((err) => throw (Exception(err))) ??
+        '';
   }
 
   @override

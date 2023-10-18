@@ -28,13 +28,13 @@ class InAppAuthBrowser extends InAppBrowser {
   }) : super(windowId: windowId, initialUserScripts: initialUserScripts);
 
   Function? onExitCallback;
-  Future<NavigationActionPolicy> Function(WebUri? url)?
+  Future<NavigationActionPolicy> Function(Uri? url)?
       onShouldOverrideUrlLoadingCallback;
 
   void setOnExitCallback(Function cb) => (onExitCallback = cb);
 
   void setOnShouldOverrideUrlLoadingCallback(
-          Future<NavigationActionPolicy> Function(WebUri? url) cb) =>
+          Future<NavigationActionPolicy> Function(Uri? url) cb) =>
       onShouldOverrideUrlLoadingCallback = cb;
 
   @override
@@ -76,16 +76,19 @@ class _FullScreenAuthPageState extends State<FullScreenAuthPage> {
     return Stack(
       children: [
         InAppWebView(
-          initialUrlRequest: URLRequest(url: WebUri(widget.params.url)),
-          initialSettings: InAppWebViewSettings(
-            clearCache: widget.params.clearCache,
-            clearSessionCache: widget.params.clearCache,
+          initialUrlRequest: URLRequest(url: Uri.parse(widget.params.url)),
+          initialOptions: InAppWebViewGroupOptions(
+            crossPlatform: InAppWebViewOptions(
+              clearCache: widget.params.clearCache!,
+              useShouldOverrideUrlLoading: true,
+              useOnLoadResource: true,
+            ),
           ),
           shouldOverrideUrlLoading: (controller, navigationAction) async {
             final uri = navigationAction.request.url!;
 
             if (uri.scheme == widget.params.callbackUrlScheme) {
-              Navigator.pop(ctx, uri.rawValue);
+              Navigator.pop(ctx, uri.toString());
               return NavigationActionPolicy.CANCEL;
             }
 
@@ -138,7 +141,7 @@ class _FullScreenAuthPageState extends State<FullScreenAuthPage> {
 
   @override
   Widget build(BuildContext context) {
-    WebView.debugLoggingSettings.enabled = false;
+    //WebView.debugLoggingSettings.enabled = false;
     return (widget.params.isMaterialStyle ?? true)
         ? materialAuthWidget(context)
         : cupertinoAuthWidget(context);
@@ -150,9 +153,6 @@ class _FullScreenAuthPageState extends State<FullScreenAuthPage> {
 class CasdoorFlutterSdkMobile extends CasdoorFlutterSdkPlatform {
   CasdoorFlutterSdkMobile() : super.create();
 
-  // FixMe: session to find out active browser
-  WebAuthenticationSession? session;
-  final InAppAuthBrowser browser = InAppAuthBrowser();
   bool willClearCache = false;
 
   /// Registers this class as the default instance of [PathProviderPlatform]
@@ -176,7 +176,6 @@ class CasdoorFlutterSdkMobile extends CasdoorFlutterSdkPlatform {
       ),
     );
 
-    //debugPrint('Result: $result');
     if (result is String) {
       return result;
     }
@@ -186,6 +185,7 @@ class CasdoorFlutterSdkMobile extends CasdoorFlutterSdkPlatform {
 
   Future<String> _inAppBrowserAuth(CasdoorSdkParams params) async {
     final Completer<String> isFinished = Completer<String>();
+    final InAppAuthBrowser browser = InAppAuthBrowser();
 
     browser.setOnExitCallback(() {
       if (!isFinished.isCompleted) {
@@ -196,7 +196,7 @@ class CasdoorFlutterSdkMobile extends CasdoorFlutterSdkPlatform {
     browser.setOnShouldOverrideUrlLoadingCallback((returnUrl) async {
       if (returnUrl != null) {
         if (returnUrl.scheme == params.callbackUrlScheme) {
-          isFinished.complete(returnUrl.rawValue);
+          isFinished.complete(returnUrl.toString());
           browser.close();
           return NavigationActionPolicy.CANCEL;
         }
@@ -205,59 +205,29 @@ class CasdoorFlutterSdkMobile extends CasdoorFlutterSdkPlatform {
     });
 
     await browser.openUrlRequest(
-      urlRequest: URLRequest(url: WebUri(params.url)),
-      settings: InAppBrowserClassSettings(
-        browserSettings: InAppBrowserSettings(
+      urlRequest: URLRequest(url: Uri.parse(params.url)),
+      options: InAppBrowserClassOptions(
+        inAppWebViewGroupOptions: InAppWebViewGroupOptions(
+          crossPlatform: InAppWebViewOptions(
+            clearCache: params.clearCache!,
+            useOnLoadResource: true,
+            useShouldOverrideUrlLoading: true,
+          ),
+        ),
+        crossPlatform: InAppBrowserOptions(
           hideUrlBar: true,
-          hideDefaultMenuItems: true,
+          toolbarTopBackgroundColor: Colors.grey.shade300,
+        ),
+        android: AndroidInAppBrowserOptions(
           toolbarTopFixedTitle: 'Login',
         ),
-        webViewSettings: InAppWebViewSettings(
-          useShouldOverrideUrlLoading: true,
-          useOnLoadResource: true,
-          clearCache: params.clearCache,
-          clearSessionCache: params.clearCache,
+        ios: IOSInAppBrowserOptions(
+          hideToolbarBottom: true,
         ),
       ),
     );
 
     return isFinished.future;
-  }
-
-  Future<String> _webAuthSession(CasdoorSdkParams params) async {
-    if ((session == null) && (await WebAuthenticationSession.isAvailable())) {
-      bool hasStarted = false;
-      final Completer<String> isFinished = Completer<String>();
-
-      session = await WebAuthenticationSession.create(
-        url: WebUri(params.url),
-        callbackURLScheme: params.callbackUrlScheme,
-        initialSettings: WebAuthenticationSessionSettings(
-          prefersEphemeralWebBrowserSession: params.preferEphemeral,
-        ),
-        onComplete: (returnUrl, error) async {
-          if (returnUrl != null) {
-            isFinished.complete(returnUrl.rawValue);
-          }
-          await session?.dispose();
-          session = null;
-          if (!isFinished.isCompleted) {
-            isFinished.completeError(CasdoorAuthCancelledException);
-          }
-        },
-      );
-
-      if (await session?.canStart() ?? false) {
-        hasStarted = await session?.start() ?? false;
-      }
-      if (!hasStarted) {
-        throw CasdoorMobileWebAuthSessionFailedException;
-      }
-
-      return isFinished.future;
-    } else {
-      throw CasdoorMobileWebAuthSessionNotAvailableException;
-    }
   }
 
   @override
@@ -273,12 +243,9 @@ class CasdoorFlutterSdkMobile extends CasdoorFlutterSdkPlatform {
             .contains(defaultTargetPlatform)) &&
         (params.showFullscreen == true)) {
       return _fullScreenAuth(newParams);
-    } else if ((defaultTargetPlatform == TargetPlatform.android) &&
-        (params.showFullscreen != true)) {
-      return _inAppBrowserAuth(newParams);
-    } else {
-      return _webAuthSession(newParams);
     }
+
+    return _inAppBrowserAuth(newParams);
   }
 
   @override
