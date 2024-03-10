@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/casdoor/casdoor-flutter-sdk/compare/v1.4.1...v1.5.0) (2024-03-10)
+
+
+### Features
+
+* set User-Agent in webview to fix Google signin failure ([#38](https://github.com/casdoor/casdoor-flutter-sdk/issues/38)) ([62efb1e](https://github.com/casdoor/casdoor-flutter-sdk/commit/62efb1e2542db1487fcde254e678ddba6174c643))
+
 ## [1.4.1](https://github.com/casdoor/casdoor-flutter-sdk/compare/v1.4.0...v1.4.1) (2023-10-18)
 
 
