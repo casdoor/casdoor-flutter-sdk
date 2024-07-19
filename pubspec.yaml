@@ -17,8 +17,8 @@ dependencies:
   path: ^1.8.2
   path_provider: ^2.1.1
   desktop_webview_window: ^0.2.3
-  flutter_inappwebview: ^5.8.0
-  http: '>=0.13.4 <1.0.0'
+  flutter_inappwebview: ^6.0.0
+  http: ^1.0.0
   crypto: ^3.0.2
   jwt_decoder: ^2.0.1
 
