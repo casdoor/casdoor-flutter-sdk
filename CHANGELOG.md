@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/casdoor/casdoor-flutter-sdk/compare/v1.5.0...v1.6.0) (2024-07-25)
+
+
+### Features
+
+* update dependency ([#42](https://github.com/casdoor/casdoor-flutter-sdk/issues/42)) ([fbfc5c7](https://github.com/casdoor/casdoor-flutter-sdk/commit/fbfc5c7822cef95240124a5f16e78be8b517c727))
+
 # [1.5.0](https://github.com/casdoor/casdoor-flutter-sdk/compare/v1.4.1...v1.5.0) (2024-03-10)
 
 
