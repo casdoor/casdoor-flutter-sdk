@@ -171,7 +171,7 @@ class Casdoor {
   }
 
   Future<http.Response> getUserInfo(String accessToken) async {
-    return await http.post(
+    return await http.get(
       Uri(
         scheme: parseScheme(),
         host: parseHost(),
