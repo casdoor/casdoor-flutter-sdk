@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/casdoor/casdoor-flutter-sdk/compare/v1.6.0...v1.7.0) (2024-12-28)
+
+
+### Features
+
+* fix bug to change getUserInfo() API's method from POST to GET ([#46](https://github.com/casdoor/casdoor-flutter-sdk/issues/46)) ([22c142a](https://github.com/casdoor/casdoor-flutter-sdk/commit/22c142a4b191c5532da5511a65e4b2af879b7078))
+
 # [1.6.0](https://github.com/casdoor/casdoor-flutter-sdk/compare/v1.5.0...v1.6.0) (2024-07-25)
 
 
