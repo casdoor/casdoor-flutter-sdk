@@ -130,6 +130,15 @@ class Casdoor {
 
   Future<http.Response> refreshToken(String refreshToken, String? clientSecret,
       {String scope = 'read'}) async {
+    final body = {
+      'grant_type': 'refresh_token',
+      'refresh_token': refreshToken,
+      'scope': scope,
+      'client_id': config.clientId,
+    };
+    if (clientSecret != null) {
+      body['client_secret'] = clientSecret;
+    }
     return await http.post(
         Uri(
           scheme: parseScheme(),
@@ -137,13 +146,7 @@ class Casdoor {
           port: parsePort(),
           path: 'api/login/oauth/refresh_token',
         ),
-        body: {
-          'grant_type': 'refresh_token',
-          'refresh_token': refreshToken,
-          'scope': scope,
-          'client_id': config.clientId,
-          'client_secret': clientSecret
-        });
+        body: body);
   }
 
   Future<http.Response> tokenLogout(
