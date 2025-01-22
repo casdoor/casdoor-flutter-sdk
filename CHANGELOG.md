@@ -1,3 +1,10 @@
+# [1.8.0](https://github.com/casdoor/casdoor-flutter-sdk/compare/v1.7.0...v1.8.0) (2025-01-22)
+
+
+### Features
+
+* fix null bug for clientSecret in refreshToken ([#48](https://github.com/casdoor/casdoor-flutter-sdk/issues/48)) ([bedbc8a](https://github.com/casdoor/casdoor-flutter-sdk/commit/bedbc8abd5fdb7b7cd2217bcd986489ba20c7a85))
+
 # [1.7.0](https://github.com/casdoor/casdoor-flutter-sdk/compare/v1.6.0...v1.7.0) (2024-12-28)
 
 
