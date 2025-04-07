@@ -24,9 +24,10 @@ jobs:
         with:
           distribution: "adopt"
           java-version: "12.x"
-      - uses: subosito/flutter-action@v1
+      - uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.10.6"
+          channel: stable
+          flutter-version: "3.29.0"
       - name: Install dependencies
         run: flutter packages get
       - name: Analyze

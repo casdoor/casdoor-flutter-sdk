@@ -15,12 +15,13 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:js_interop' as js;
+import 'dart:js_interop_unsafe';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:web/web.dart' as web;
 
 import 'package:casdoor_flutter_sdk/casdoor_flutter_sdk.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
-
 
 class CasdoorFlutterSdkWeb extends CasdoorFlutterSdkPlatform {
   CasdoorFlutterSdkWeb() : super.create();
@@ -31,18 +32,39 @@ class CasdoorFlutterSdkWeb extends CasdoorFlutterSdkPlatform {
 
   @override
   Future<String> authenticate(CasdoorSdkParams params) async {
-    web.window.open(params.url, '_blank');
+    final newWindow = web.window.open(params.url, '_blank');
+    if (kIsWasm) {
+      String recieved = '';
+      bool stopped = false;
+      while (!stopped) {
+        const key = 'casdoor-auth';
+        final localStorageValue = web.window.localStorage.getItem(key);
+        if (localStorageValue != null) {
+          web.window.localStorage.delete(key.toJS);
+          recieved = localStorageValue;
+          stopped = true;
+        } else {
+          await Future.delayed(Duration(seconds: 1));
+        }
+      }
+
+      if (stopped && newWindow!.closed) {
+        return recieved;
+      }
+
+      return '';
+    }
 
     await for (web.MessageEvent event in web.window.onMessage) {
       final origin = event.origin;
 
       if (origin == Uri.base.origin) {
-          final mp = event.data.dartify() as Map;
-          final flutterAuthMessage = mp['casdoor-auth'];
-          
-          if (flutterAuthMessage is String) {
-            return flutterAuthMessage;
-          }
+        final mp = event.data.dartify() as Map;
+        final flutterAuthMessage = mp['casdoor-auth'];
+
+        if (flutterAuthMessage is String) {
+          return flutterAuthMessage;
+        }
       }
       final appleOrigin = Uri(scheme: 'https', host: 'appleid.apple.com');
       if (origin == appleOrigin.toString()) {
@@ -60,7 +82,8 @@ class CasdoorFlutterSdkWeb extends CasdoorFlutterSdkPlatform {
           }
         } on FormatException {}
       }
-    };
+    }
+    ;
     throw PlatformException(
         code: 'error', message: 'Iterable window.onMessage is empty');
   }
