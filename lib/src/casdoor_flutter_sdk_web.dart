@@ -14,11 +14,13 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:html';
-import 'dart:js';
+import 'dart:js_interop' as js;
+import 'dart:js_interop_unsafe';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+import 'package:web/web.dart' as web;
 
 import 'package:casdoor_flutter_sdk/casdoor_flutter_sdk.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 
 class CasdoorFlutterSdkWeb extends CasdoorFlutterSdkPlatform {
@@ -30,21 +32,47 @@ class CasdoorFlutterSdkWeb extends CasdoorFlutterSdkPlatform {
 
   @override
   Future<String> authenticate(CasdoorSdkParams params) async {
-    context.callMethod('open', [params.url]);
-    await for (MessageEvent messageEvent in window.onMessage) {
-      if (messageEvent.origin == Uri.base.origin) {
-        final flutterWebAuthMessage = messageEvent.data['casdoor-auth'];
-        if (flutterWebAuthMessage is String) {
-          return flutterWebAuthMessage;
+    final newWindow = web.window.open(params.url, '_blank');
+    if (kIsWasm) {
+      String recieved = '';
+      bool stopped = false;
+      while (!stopped) {
+        const key = 'casdoor-auth';
+        final localStorageValue = web.window.localStorage.getItem(key);
+        if (localStorageValue != null) {
+          web.window.localStorage.delete(key.toJS);
+          recieved = localStorageValue;
+          stopped = true;
+        } else {
+          await Future.delayed(Duration(seconds: 1));
+        }
+      }
+
+      if (stopped && newWindow!.closed) {
+        return recieved;
+      }
+
+      return '';
+    }
+
+    await for (web.MessageEvent event in web.window.onMessage) {
+      final origin = event.origin;
+
+      if (origin == Uri.base.origin) {
+        final mp = event.data.dartify() as Map;
+        final flutterAuthMessage = mp['casdoor-auth'];
+
+        if (flutterAuthMessage is String) {
+          return flutterAuthMessage;
         }
       }
       final appleOrigin = Uri(scheme: 'https', host: 'appleid.apple.com');
-      if (messageEvent.origin == appleOrigin.toString()) {
+      if (origin == appleOrigin.toString()) {
         try {
-          final Map<String, dynamic> data =
-              jsonDecode(messageEvent.data as String) as Map<String, dynamic>;
-          if (data['method'] == 'oauthDone') {
-            final appleAuth = data['data']['authorization'];
+          final Map<String, dynamic> message =
+              jsonDecode(event.data as String) as Map<String, dynamic>;
+          if (message['method'] == 'oauthDone') {
+            final appleAuth = message['data']['authorization'];
             if (appleAuth != null) {
               final appleAuthQuery =
                   Uri(queryParameters: appleAuth as Map<String, dynamic>?)
@@ -55,6 +83,7 @@ class CasdoorFlutterSdkWeb extends CasdoorFlutterSdkPlatform {
         } on FormatException {}
       }
     }
+    ;
     throw PlatformException(
         code: 'error', message: 'Iterable window.onMessage is empty');
   }
