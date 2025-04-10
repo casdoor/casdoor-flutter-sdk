@@ -1,3 +1,10 @@
+# [1.9.0](https://github.com/casdoor/casdoor-flutter-sdk/compare/v1.8.0...v1.9.0) (2025-04-10)
+
+
+### Features
+
+* upgrade to Flutter 3.19.0, replace deprecated libs and add wasm support ([#49](https://github.com/casdoor/casdoor-flutter-sdk/issues/49)) ([7e2f18b](https://github.com/casdoor/casdoor-flutter-sdk/commit/7e2f18b4435f8327f43ffb5e11f9566acd879efb))
+
 # [1.8.0](https://github.com/casdoor/casdoor-flutter-sdk/compare/v1.7.0...v1.8.0) (2025-01-22)
 
 
