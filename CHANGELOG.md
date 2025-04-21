@@ -1,3 +1,10 @@
+# [1.10.0](https://github.com/casdoor/casdoor-flutter-sdk/compare/v1.9.0...v1.10.0) (2025-04-21)
+
+
+### Features
+
+* add missing web dependency to pubspec.yaml ([90236df](https://github.com/casdoor/casdoor-flutter-sdk/commit/90236dfed6994c8b53ab6127498fdf8d11b7f83d))
+
 # [1.9.0](https://github.com/casdoor/casdoor-flutter-sdk/compare/v1.8.0...v1.9.0) (2025-04-10)
 
 
