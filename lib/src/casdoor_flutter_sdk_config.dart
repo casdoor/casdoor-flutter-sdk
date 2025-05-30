@@ -14,6 +14,9 @@
 
 import 'package:flutter/widgets.dart';
 
+const CASDOOR_USER_AGENT =
+    'Mozilla/5.0 (Android 14; Mobile; rv:123.0) Gecko/123.0 Firefox/123.0';
+
 class AuthConfig {
   final String clientId;
   final String serverUrl;
@@ -37,19 +40,17 @@ class CasdoorSdkParams {
     required this.url,
     required this.callbackUrlScheme,
     this.buildContext,
-    this.showFullscreen,
-    this.isMaterialStyle,
-    this.preferEphemeral,
-    this.clearCache,
+    this.showFullscreen = false,
+    this.isMaterialStyle = true,
+    this.clearCache = false,
   });
 
   final String url;
   final String callbackUrlScheme;
   BuildContext? buildContext;
-  bool? showFullscreen;
-  bool? isMaterialStyle;
-  bool? preferEphemeral;
-  bool? clearCache;
+  bool showFullscreen;
+  bool isMaterialStyle;
+  bool clearCache;
 
   CasdoorSdkParams copyWith({
     String? url,
@@ -57,7 +58,6 @@ class CasdoorSdkParams {
     BuildContext? buildContext,
     bool? showFullscreen,
     bool? isMaterialStyle,
-    bool? preferEphemeral,
     bool? clearCache,
   }) =>
       CasdoorSdkParams(
@@ -66,7 +66,6 @@ class CasdoorSdkParams {
         buildContext: buildContext ?? this.buildContext,
         showFullscreen: showFullscreen ?? this.showFullscreen,
         isMaterialStyle: isMaterialStyle ?? this.isMaterialStyle,
-        preferEphemeral: preferEphemeral ?? this.preferEphemeral,
         clearCache: clearCache ?? this.clearCache,
       );
 }
