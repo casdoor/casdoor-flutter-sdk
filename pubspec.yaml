@@ -55,7 +55,7 @@ flutter:
       macos:
         dartPluginClass: CasdoorFlutterSdkMobile
       windows:
-        dartPluginClass: CasdoorFlutterSdkMobile
+        dartPluginClass: CasdoorFlutterSdkDesktop
       web:
         pluginClass: CasdoorFlutterSdkWeb
         fileName: src/casdoor_flutter_sdk_web.dart
