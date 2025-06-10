@@ -1,3 +1,10 @@
+# [1.11.0](https://github.com/casdoor/casdoor-flutter-sdk/compare/v1.10.0...v1.11.0) (2025-06-10)
+
+
+### Features
+
+* clear cache on logout ([#52](https://github.com/casdoor/casdoor-flutter-sdk/issues/52)) ([e752092](https://github.com/casdoor/casdoor-flutter-sdk/commit/e752092cd612e55f5309dd1580075e093afe4082))
+
 # [1.10.0](https://github.com/casdoor/casdoor-flutter-sdk/compare/v1.9.0...v1.10.0) (2025-04-21)
 
 
