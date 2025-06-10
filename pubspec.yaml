@@ -4,8 +4,8 @@ version: 1.10.0
 homepage: https://github.com/casdoor/casdoor-flutter-sdk
 
 environment:
-  sdk: ">=3.3.0 <4.0.0"
-  flutter: ">=3.19.0"
+  sdk: ">=3.5.0 <4.0.0"
+  flutter: ">=3.24.0"
 
 dependencies:
   flutter:
@@ -14,19 +14,19 @@ dependencies:
     sdk: flutter
   plugin_platform_interface: ^2.0.2
 
-  path: ^1.8.2
-  path_provider: ^2.1.1
+  path: ^1.9.0
+  path_provider: ^2.1.5
   desktop_webview_window: ^0.2.3
-  flutter_inappwebview: ^6.0.0
-  http: ^1.0.0
-  crypto: ^3.0.2
+  flutter_inappwebview: ^6.1.5
+  http: ^1.4.0
+  crypto: ^3.0.6
   jwt_decoder: ^2.0.1
-  web: ^1.0.0
+  web: ^1.1.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.0
+  flutter_lints: ^5.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -53,7 +53,7 @@ flutter:
       linux:
         dartPluginClass: CasdoorFlutterSdkDesktop
       macos:
-        dartPluginClass: CasdoorFlutterSdkDesktop
+        dartPluginClass: CasdoorFlutterSdkMobile
       windows:
         dartPluginClass: CasdoorFlutterSdkDesktop
       web:
