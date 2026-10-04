@@ -86,10 +86,6 @@ jobs:
         run: |
           flutter create --platforms=${{ matrix.platforms }} --project-name casdoor_flutter_sdk_example .
           rm -rf test
-          # Workaround for flutter_inappwebview_android on AGP 9, see README
-          if [ -d android ]; then
-            echo "android.r8.proguardAndroidTxt.disallowed=false" >> android/gradle.properties
-          fi
       - name: Build
         run: |
           for target in ${{ matrix.targets }}; do

@@ -17,7 +17,7 @@ dependencies:
   path: ^1.9.0
   path_provider: ^2.1.5
   desktop_webview_window: ^0.3.0
-  flutter_inappwebview: ^6.1.5
+  flutter_web_auth_2: ^5.1.0
   http: ^1.6.0
   crypto: ^3.0.7
   jwt_decoder: ^2.0.1
@@ -26,6 +26,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_web_auth_2_platform_interface: ^5.0.0
   flutter_lints: ^5.0.0
 
 # For information on the generic Dart part of this file, see the

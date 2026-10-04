@@ -14,16 +14,21 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:js_interop' as js;
-import 'dart:js_interop_unsafe';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
-import 'package:web/web.dart' as web;
+import 'dart:js_interop';
 
 import 'package:casdoor_flutter_sdk/casdoor_flutter_sdk.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
+import 'package:web/web.dart' as web;
+
+/// Key of the redirect URL in the message or the local storage item that the
+/// callback page sends to the app.
+const String _authKey = 'casdoor-auth';
 
 /// Implementation for the Web that signs in in a popup window.
+///
+/// The callback page of the app sends the redirect URL back with
+/// `window.opener.postMessage({'casdoor-auth': url})`, or by setting the
+/// `casdoor-auth` local storage item when the popup has no opener.
 class CasdoorFlutterSdkWeb extends CasdoorFlutterSdkPlatform {
   /// Constructs the web implementation.
   CasdoorFlutterSdkWeb() : super.create();
@@ -35,62 +40,72 @@ class CasdoorFlutterSdkWeb extends CasdoorFlutterSdkPlatform {
 
   @override
   Future<String> authenticate(CasdoorSdkParams params) async {
-    final newWindow = web.window.open(params.url, '_blank');
-    if (kIsWasm) {
-      String recieved = '';
-      bool stopped = false;
-      while (!stopped) {
-        const key = 'casdoor-auth';
-        final localStorageValue = web.window.localStorage.getItem(key);
-        if (localStorageValue != null) {
-          web.window.localStorage.delete(key.toJS);
-          recieved = localStorageValue;
-          stopped = true;
-        } else {
-          await Future.delayed(Duration(seconds: 1));
-        }
+    final Completer<String> result = Completer<String>();
+    void complete(String url) {
+      if (!result.isCompleted) {
+        result.complete(url);
       }
-
-      if (stopped && newWindow!.closed) {
-        return recieved;
-      }
-
-      return '';
     }
 
-    await for (web.MessageEvent event in web.window.onMessage) {
-      final origin = event.origin;
-
-      if (origin == Uri.base.origin) {
-        final mp = event.data.dartify() as Map;
-        final flutterAuthMessage = mp['casdoor-auth'];
-
-        if (flutterAuthMessage is String) {
-          return flutterAuthMessage;
-        }
+    final StreamSubscription<web.MessageEvent> messages =
+        web.window.onMessage.listen((event) {
+      final String? url = _parseMessage(event);
+      if (url != null) {
+        complete(url);
       }
-      final appleOrigin = Uri(scheme: 'https', host: 'appleid.apple.com');
-      if (origin == appleOrigin.toString()) {
-        try {
-          final Map<String, dynamic> message =
-              jsonDecode(event.data.dartify() as String)
-                  as Map<String, dynamic>;
-          if (message['method'] == 'oauthDone') {
-            final appleAuth = message['data']['authorization'];
-            if (appleAuth != null) {
-              final appleAuthQuery =
-                  Uri(queryParameters: appleAuth as Map<String, dynamic>?)
-                      .query;
-              return appleOrigin.replace(fragment: appleAuthQuery).toString();
-            }
+    });
+    final StreamSubscription<web.StorageEvent> storage = web
+        .EventStreamProviders.storageEvent
+        .forTarget(web.window)
+        .listen((event) {
+      final String? url = event.newValue;
+      if (event.key == _authKey && url != null) {
+        web.window.localStorage.removeItem(_authKey);
+        complete(url);
+      }
+    });
+
+    web.window.open(params.url, '_blank');
+    try {
+      return await result.future;
+    } finally {
+      await messages.cancel();
+      await storage.cancel();
+    }
+  }
+
+  /// Returns the redirect URL in [event], or null if [event] is not a
+  /// message from the callback page or from Sign in with Apple.
+  static String? _parseMessage(web.MessageEvent event) {
+    final String origin = event.origin;
+    final Object? data = event.data.dartify();
+
+    if (origin == Uri.base.origin) {
+      if (data is Map && data[_authKey] is String) {
+        return data[_authKey] as String;
+      }
+      return null;
+    }
+
+    final Uri appleOrigin = Uri(scheme: 'https', host: 'appleid.apple.com');
+    if (origin == appleOrigin.toString() && data is String) {
+      try {
+        final Object? message = jsonDecode(data);
+        if (message is Map && message['method'] == 'oauthDone') {
+          final Object? appleAuth = (message['data'] as Map?)?['authorization'];
+          if (appleAuth is Map) {
+            final String query = Uri(
+              queryParameters:
+                  appleAuth.map((key, value) => MapEntry('$key', '$value')),
+            ).query;
+            return appleOrigin.replace(fragment: query).toString();
           }
-        } on FormatException {
-          // Ignore messages from Apple that are not JSON.
         }
+      } on FormatException {
+        // Ignore messages from Apple that are not JSON.
       }
     }
-    throw PlatformException(
-        code: 'error', message: 'Iterable window.onMessage is empty');
+    return null;
   }
 
   @override

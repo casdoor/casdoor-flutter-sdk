@@ -21,9 +21,10 @@ class CasdoorDesktopWebViewNotAvailableException implements Exception {}
 /// Thrown when a sign-in window is already open on the desktop platform.
 class CasdoorDesktopWebViewAlreadyOpenException implements Exception {}
 
-/// Thrown when the iOS web authentication session is not available or
-/// another one is in progress.
+/// Was thrown when the iOS web authentication session was not available.
+@Deprecated('No longer thrown since 2.0.0')
 class CasdoorMobileWebAuthSessionNotAvailableException implements Exception {}
 
-/// Thrown when the iOS web authentication session fails to start.
+/// Was thrown when the iOS web authentication session failed to start.
+@Deprecated('No longer thrown since 2.0.0')
 class CasdoorMobileWebAuthSessionFailedException implements Exception {}

@@ -12,13 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:flutter/widgets.dart';
-
-/// User agent of the sign-in web view on Android and iOS.
-// ignore: constant_identifier_names
-const CASDOOR_USER_AGENT =
-    'Mozilla/5.0 (Android 14; Mobile; rv:123.0) Gecko/123.0 Firefox/123.0';
-
 /// Configuration of a Casdoor application.
 class AuthConfig {
   /// Client ID of the Casdoor application.
@@ -58,9 +51,6 @@ class CasdoorSdkParams {
   CasdoorSdkParams({
     required this.url,
     required this.callbackUrlScheme,
-    this.buildContext,
-    this.showFullscreen = false,
-    this.isMaterialStyle = true,
     this.clearCache = false,
   });
 
@@ -70,35 +60,20 @@ class CasdoorSdkParams {
   /// URL scheme of the redirect URI that ends the sign-in.
   final String callbackUrlScheme;
 
-  /// Context whose navigator shows the full screen sign-in page.
-  BuildContext? buildContext;
-
-  /// Whether to show the sign-in page in a full screen page instead of a new
-  /// window. Supported on Android and iOS.
-  bool showFullscreen;
-
-  /// Whether the full screen sign-in page uses Material instead of Cupertino
-  /// widgets.
-  bool isMaterialStyle;
-
-  /// Whether to clear the cookies and cache of the web view before signing in.
+  /// Whether to sign in without the cookies of previous sign-ins: an
+  /// ephemeral browser session on Android, iOS and macOS, and a cleared web
+  /// view cache on Linux and Windows.
   bool clearCache;
 
   /// Returns a copy of these parameters with the given fields replaced.
   CasdoorSdkParams copyWith({
     String? url,
     String? callbackUrlScheme,
-    BuildContext? buildContext,
-    bool? showFullscreen,
-    bool? isMaterialStyle,
     bool? clearCache,
   }) =>
       CasdoorSdkParams(
         url: url ?? this.url,
         callbackUrlScheme: callbackUrlScheme ?? this.callbackUrlScheme,
-        buildContext: buildContext ?? this.buildContext,
-        showFullscreen: showFullscreen ?? this.showFullscreen,
-        isMaterialStyle: isMaterialStyle ?? this.isMaterialStyle,
         clearCache: clearCache ?? this.clearCache,
       );
 }

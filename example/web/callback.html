@@ -3,8 +3,13 @@
 <p>Authentication is complete. If this does not happen automatically, please
 close the window.
 <script>
-  window.opener.postMessage({
-    'casdoor-auth': window.location.href
-  }, window.location.origin);
+  if (window.opener) {
+    window.opener.postMessage({
+      'casdoor-auth': window.location.href
+    }, window.location.origin);
+  } else {
+    // The browser cut the link to the app, pass the URL through local storage.
+    localStorage.setItem('casdoor-auth', window.location.href);
+  }
   window.close();
 </script>

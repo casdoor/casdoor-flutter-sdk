@@ -15,148 +15,17 @@
 import 'dart:async';
 
 import 'package:casdoor_flutter_sdk/casdoor_flutter_sdk.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_web_auth_2/flutter_web_auth_2.dart';
 
-/// In-app browser that reports when it exits and lets a callback decide
-/// whether to load a URL.
-class InAppAuthBrowser extends InAppBrowser {
-  /// Creates an in-app browser.
-  InAppAuthBrowser({
-    super.windowId,
-    super.initialUserScripts,
-  });
-
-  /// Called when the browser exits.
-  Function? onExitCallback;
-
-  /// Decides whether the browser loads a URL.
-  Future<NavigationActionPolicy> Function(Uri? url)?
-      onShouldOverrideUrlLoadingCallback;
-
-  /// Sets [onExitCallback].
-  void setOnExitCallback(Function cb) => (onExitCallback = cb);
-
-  /// Sets [onShouldOverrideUrlLoadingCallback].
-  void setOnShouldOverrideUrlLoadingCallback(
-          Future<NavigationActionPolicy> Function(Uri? url) cb) =>
-      onShouldOverrideUrlLoadingCallback = cb;
-
-  @override
-  void onExit() {
-    if (onExitCallback != null) {
-      onExitCallback!();
-    }
-  }
-
-  @override
-  Future<NavigationActionPolicy> shouldOverrideUrlLoading(
-      NavigationAction navigationAction) async {
-    if (onShouldOverrideUrlLoadingCallback != null) {
-      return onShouldOverrideUrlLoadingCallback!(navigationAction.request.url);
-    }
-
-    return NavigationActionPolicy.ALLOW;
-  }
-}
-
-// -----------------------------------------------------------------------------
-
-/// Full screen page that shows the sign-in page in a web view and pops with
-/// the callback URL.
-class FullScreenAuthPage extends StatefulWidget {
-  /// Creates a full screen sign-in page.
-  const FullScreenAuthPage({
-    super.key,
-    required this.params,
-  });
-
-  /// Parameters of the sign-in.
-  final CasdoorSdkParams params;
-
-  @override
-  State<FullScreenAuthPage> createState() => _FullScreenAuthPageState();
-}
-
-class _FullScreenAuthPageState extends State<FullScreenAuthPage> {
-  double progress = 0;
-
-  Widget webViewWidget(BuildContext ctx) {
-    return Stack(
-      children: [
-        InAppWebView(
-          initialUrlRequest:
-              URLRequest(url: WebUri.uri(Uri.parse(widget.params.url))),
-          initialSettings: InAppWebViewSettings(
-            userAgent: CASDOOR_USER_AGENT,
-            useShouldOverrideUrlLoading: true,
-            useOnLoadResource: true,
-          ),
-          shouldOverrideUrlLoading: (controller, navigationAction) async {
-            final uri = navigationAction.request.url!;
-
-            if (uri.scheme == widget.params.callbackUrlScheme) {
-              Navigator.pop(ctx, uri.toString());
-              return NavigationActionPolicy.CANCEL;
-            }
-
-            return NavigationActionPolicy.ALLOW;
-          },
-          onProgressChanged: (controller, progress) {
-            setState(() {
-              this.progress = progress / 100;
-            });
-          },
-        ),
-        progress < 1.0 ? LinearProgressIndicator(value: progress) : Container(),
-      ],
-    );
-  }
-
-  Widget materialAuthWidget(BuildContext ctx) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: false,
-        title: const Text('Login'),
-      ),
-      body: webViewWidget(ctx),
-    );
-  }
-
-  Widget cupertinoAuthWidget(BuildContext ctx) {
-    return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        leading: CupertinoNavigationBarBackButton(
-          onPressed: () => Navigator.pop(ctx),
-        ),
-        middle: const Text('Login'),
-      ),
-      child: webViewWidget(ctx),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return (widget.params.isMaterialStyle)
-        ? materialAuthWidget(context)
-        : cupertinoAuthWidget(context);
-  }
-}
-
-// -----------------------------------------------------------------------------
-
-/// Implementation for Android, iOS and macOS that signs in with
-/// flutter_inappwebview.
+/// Implementation for Android, iOS and macOS that signs in in the system
+/// browser with flutter_web_auth_2: Custom Tabs on Android and
+/// `ASWebAuthenticationSession` on iOS and macOS.
 class CasdoorFlutterSdkMobile extends CasdoorFlutterSdkPlatform {
   /// Constructs the mobile implementation.
   CasdoorFlutterSdkMobile() : super.create();
 
-  /// Web authentication session in progress on iOS.
-  WebAuthenticationSession? session;
-
-  /// Whether to clear the cache before the next sign-in.
+  /// Whether the next sign-in uses an ephemeral browser session.
   bool willClearCache = false;
 
   /// Registers this class as the default instance of [CasdoorFlutterSdkPlatform]
@@ -164,132 +33,31 @@ class CasdoorFlutterSdkMobile extends CasdoorFlutterSdkPlatform {
     CasdoorFlutterSdkPlatform.instance = CasdoorFlutterSdkMobile();
   }
 
+  /// The cookies of the system browser cannot be cleared by the app, so the
+  /// next sign-in uses an ephemeral browser session that does not share them.
   @override
   Future<bool> clearCache() async {
-    final CookieManager cookieManager = CookieManager.instance();
-    cookieManager.deleteAllCookies();
-    if (defaultTargetPlatform == TargetPlatform.android) {
-      await cookieManager.removeSessionCookies();
-    }
-    await InAppWebViewController.clearAllCache();
-
     willClearCache = true;
-
     return true;
-  }
-
-  Future<String> _fullScreenAuth(CasdoorSdkParams params) async {
-    final result = await Navigator.push(
-      params.buildContext!,
-      MaterialPageRoute(
-        builder: (BuildContext ctx) => FullScreenAuthPage(params: params),
-      ),
-    );
-
-    if (result is String) {
-      return result;
-    }
-
-    throw CasdoorAuthCancelledException();
-  }
-
-  Future<String> _inAppBrowserAuth(CasdoorSdkParams params) async {
-    final Completer<String> isFinished = Completer<String>();
-    final InAppAuthBrowser browser = InAppAuthBrowser();
-
-    browser.setOnExitCallback(() {
-      if (!isFinished.isCompleted) {
-        isFinished.completeError(CasdoorAuthCancelledException());
-      }
-    });
-
-    browser.setOnShouldOverrideUrlLoadingCallback((returnUrl) async {
-      if (returnUrl != null) {
-        if (returnUrl.scheme == params.callbackUrlScheme) {
-          isFinished.complete(returnUrl.toString());
-          browser.close();
-          return NavigationActionPolicy.CANCEL;
-        }
-      }
-      return NavigationActionPolicy.ALLOW;
-    });
-
-    await browser.openUrlRequest(
-      urlRequest: URLRequest(url: WebUri.uri(Uri.parse(params.url))),
-      settings: InAppBrowserClassSettings(
-        webViewSettings: InAppWebViewSettings(
-          userAgent: CASDOOR_USER_AGENT,
-          useOnLoadResource: true,
-          useShouldOverrideUrlLoading: true,
-        ),
-        browserSettings: InAppBrowserSettings(
-          hideUrlBar: true,
-          toolbarTopFixedTitle: 'Login',
-          hideToolbarBottom: true,
-        ),
-      ),
-    );
-
-    return isFinished.future;
-  }
-
-  Future<String> _webAuthSession(CasdoorSdkParams params) async {
-    if ((session != null) || (!await WebAuthenticationSession.isAvailable())) {
-      throw CasdoorMobileWebAuthSessionNotAvailableException();
-    }
-
-    bool hasStarted = false;
-    final Completer<String> isFinished = Completer<String>();
-
-    session = await WebAuthenticationSession.create(
-      url: WebUri(params.url),
-      callbackURLScheme: params.callbackUrlScheme,
-      initialSettings: WebAuthenticationSessionSettings(
-        prefersEphemeralWebBrowserSession: params.clearCache,
-      ),
-      onComplete:
-          (WebUri? returnUrl, WebAuthenticationSessionError? error) async {
-        if (returnUrl != null) {
-          isFinished.complete(returnUrl.rawValue);
-        }
-        await session?.dispose();
-        session = null;
-        if (!isFinished.isCompleted) {
-          isFinished.completeError(CasdoorAuthCancelledException());
-        }
-      },
-    );
-
-    if (await session?.canStart() ?? false) {
-      hasStarted = await session?.start() ?? false;
-    }
-    if (!hasStarted) {
-      throw CasdoorMobileWebAuthSessionFailedException();
-    }
-
-    return isFinished.future;
   }
 
   @override
   Future<String> authenticate(CasdoorSdkParams params) async {
-    final CasdoorSdkParams newParams =
-        (willClearCache == true) ? params.copyWith(clearCache: true) : params;
+    final bool preferEphemeral = params.clearCache || willClearCache;
+    willClearCache = false;
 
-    if (newParams.clearCache == true) {
-      await clearCache();
-      willClearCache = false;
+    try {
+      return await FlutterWebAuth2.authenticate(
+        url: params.url,
+        callbackUrlScheme: params.callbackUrlScheme,
+        options: FlutterWebAuth2Options(preferEphemeral: preferEphemeral),
+      );
+    } on PlatformException catch (e) {
+      if (e.code == 'CANCELED') {
+        throw CasdoorAuthCancelledException();
+      }
+      rethrow;
     }
-
-    if (([TargetPlatform.android, TargetPlatform.iOS]
-            .contains(defaultTargetPlatform)) &&
-        (params.showFullscreen == true)) {
-      return _fullScreenAuth(newParams);
-    } else if ((defaultTargetPlatform == TargetPlatform.iOS) &&
-        (params.showFullscreen != true)) {
-      return _webAuthSession(newParams);
-    }
-
-    return _inAppBrowserAuth(newParams);
   }
 
   @override

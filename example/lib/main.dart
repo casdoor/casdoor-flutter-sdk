@@ -52,17 +52,14 @@ class _MyAppState extends State<MyApp> {
   String _message = '';
   bool _busy = false;
 
-  Future<void> _login(BuildContext context, {bool fullscreen = false}) async {
+  Future<void> _login() async {
     setState(() => _busy = true);
     // Use the same instance for signing in and requesting the token, it holds
     // the PKCE code verifier, nonce and state.
     final Casdoor casdoor = Casdoor(config: _config);
-    const String scope = 'openid profile email';
-    final Future<String> signIn = fullscreen
-        ? casdoor.showFullscreen(context, scope: scope)
-        : casdoor.show(scope: scope);
     try {
-      final String callbackUrl = await signIn;
+      final String callbackUrl =
+          await casdoor.show(scope: 'openid profile email');
       if (!casdoor.isState(callbackUrl)) {
         throw Exception('state mismatch');
       }
@@ -70,6 +67,9 @@ class _MyAppState extends State<MyApp> {
       final response = await casdoor.requestOauthAccessToken(code);
       final Map<String, dynamic> body =
           jsonDecode(response.body) as Map<String, dynamic>;
+      if (body['access_token'] == null) {
+        throw Exception(body['error_description'] ?? response.body);
+      }
       setState(() {
         _accessToken = body['access_token'] as String? ?? '';
         _idToken = body['id_token'] as String? ?? '';
@@ -114,21 +114,12 @@ class _MyAppState extends State<MyApp> {
                     : 'Signed in as ${claims['name']}'),
                 if (_message.isNotEmpty) Text(_message),
                 const SizedBox(height: 20),
-                if (_accessToken.isEmpty) ...[
+                if (_accessToken.isEmpty)
                   ElevatedButton(
-                    onPressed: _busy ? null : () => _login(context),
+                    onPressed: _busy ? null : _login,
                     child: const Text('Sign in'),
-                  ),
-                  if (!kIsWeb &&
-                      (defaultTargetPlatform == TargetPlatform.android ||
-                          defaultTargetPlatform == TargetPlatform.iOS))
-                    TextButton(
-                      onPressed: _busy
-                          ? null
-                          : () => _login(context, fullscreen: true),
-                      child: const Text('Sign in (full screen)'),
-                    ),
-                ] else
+                  )
+                else
                   ElevatedButton(
                     onPressed: _busy ? null : _logout,
                     child: const Text('Sign out'),

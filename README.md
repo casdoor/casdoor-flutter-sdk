@@ -13,6 +13,8 @@ Sign users in to your Flutter app with [Casdoor](https://casdoor.ai), on Android
 
 The SDK opens the Casdoor sign-in page, gets the authorization code with the OAuth 2.0 authorization code flow and PKCE, and exchanges it for tokens. It also refreshes tokens, gets user info and signs users out.
 
+On Android, iOS and macOS the sign-in page is shown in the system browser, so third-party providers that block embedded web views, such as Google, work out of the box.
+
 | Android                        | iOS                    | Web                    |
 | ------------------------------ | ---------------------- | ---------------------- |
 | ![Android](screen-andriod.gif) | ![iOS](screen-ios.gif) | ![Web](screen-web.gif) |
@@ -77,8 +79,6 @@ final String refreshToken = tokens['refresh_token'];
 
 Use the same `Casdoor` instance for `show()` and `requestOauthAccessToken()`: it holds the PKCE code verifier, the nonce and the state of this sign-in.
 
-On Android and iOS, `showFullscreen(context)` shows the sign-in page in a full screen page of your app instead of a separate window.
-
 ### 3. Use the tokens
 
 ```dart
@@ -97,8 +97,8 @@ if (casdoor.isTokenExpired(accessToken)) {
 ### 4. Sign out
 
 ```dart
-// clearCache: true also clears the cookies of the sign-in page,
-// so the next sign-in asks for the credentials again.
+// clearCache: true makes the next sign-in ignore the cookies of previous
+// sign-ins, so it asks for the credentials again.
 await casdoor.tokenLogout(idToken, null, 'logout', clearCache: true);
 ```
 
@@ -108,21 +108,34 @@ A complete app is in [example/lib/main.dart](example/lib/main.dart).
 
 | Platform | Sign-in page shown in |
 | --- | --- |
-| Android | In-app browser of [flutter_inappwebview](https://pub.dev/packages/flutter_inappwebview) |
-| iOS | `ASWebAuthenticationSession` |
-| macOS | In-app browser of flutter_inappwebview |
+| Android | Custom Tabs of the system browser, with [flutter_web_auth_2](https://pub.dev/packages/flutter_web_auth_2) |
+| iOS, macOS | `ASWebAuthenticationSession`, with flutter_web_auth_2 |
 | Linux, Windows | Web view window of [desktop_webview_window](https://pub.dev/packages/desktop_webview_window) |
 | Web | Popup window |
 
 ### Android
 
-See the [setup guide](https://inappwebview.dev/docs/intro) of flutter_inappwebview.
+The browser opens the redirect URI when the sign-in finishes. Register an activity for its scheme in `android/app/src/main/AndroidManifest.xml`, replacing `casdoor` with your `callbackUrlScheme`:
 
-On Android Gradle Plugin 9 or later (the default of new projects since Flutter 3.47), the build of `flutter_inappwebview_android` fails with ``getDefaultProguardFile('proguard-android.txt')` is no longer supported``. Until flutter_inappwebview is fixed ([issue](https://github.com/pichillilorenzo/flutter_inappwebview/issues/2852)), add this line to `android/gradle.properties`:
-
-```properties
-android.r8.proguardAndroidTxt.disallowed=false
+```xml
+<manifest>
+  <application>
+    <activity
+      android:name="com.linusu.flutter_web_auth_2.CallbackActivity"
+      android:exported="true"
+      android:taskAffinity="">
+      <intent-filter android:label="flutter_web_auth_2">
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data android:scheme="casdoor" />
+      </intent-filter>
+    </activity>
+  </application>
+</manifest>
 ```
+
+Also set `android:taskAffinity=""` on your `MainActivity`. See the [setup guide](https://pub.dev/packages/flutter_web_auth_2#android) of flutter_web_auth_2 for details.
 
 ### iOS
 
@@ -164,22 +177,24 @@ On **Linux**, install WebKitGTK, for example `sudo apt install libwebkit2gtk-4.1
 On **Windows**:
 
 - The sign-in window uses the [WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/), which is preinstalled on Windows 11.
-- [nuget.exe](https://www.nuget.org/downloads) must be in the `PATH` (for example `winget install Microsoft.NuGet`). The Windows build of flutter_inappwebview downloads its dependencies with it and fails with `NUGET-NOTFOUND` otherwise.
-- Keep the path of your project short. The build fails with `Cannot open include file` when the full path of the flutter_inappwebview headers exceeds 260 characters.
 - desktop_webview_window has a [known bug](https://github.com/MixinNetwork/flutter-plugins/issues/283) that crashes the sign-in window randomly.
 
 ### Web
 
-Create `web/callback.html` in your app. Casdoor redirects the popup to this page, and the page sends the redirect URL back to your app:
+Create `web/callback.html` in your app. Casdoor redirects the popup to this page, and the page sends the redirect URL back to your app. When the browser cuts the link between the popup and the app (for example because of a `Cross-Origin-Opener-Policy` header), it passes the URL through local storage instead:
 
 ```html
 <!DOCTYPE html>
 <title>Authentication complete</title>
 <p>Authentication is complete. If this does not happen automatically, please close the window.
 <script>
-  window.opener.postMessage({
-    'casdoor-auth': window.location.href
-  }, window.location.origin);
+  if (window.opener) {
+    window.opener.postMessage({
+      'casdoor-auth': window.location.href
+    }, window.location.origin);
+  } else {
+    localStorage.setItem('casdoor-auth', window.location.href);
+  }
   window.close();
 </script>
 ```
@@ -196,8 +211,7 @@ All methods are on the `Casdoor` class. The HTTP methods return the `http.Respon
 
 | Method | Description |
 | --- | --- |
-| `show({scope, state})` | Opens the sign-in page in a new window and returns the redirect URL |
-| `showFullscreen(context, {isMaterialStyle, scope, state})` | Opens the sign-in page in a full screen page (Android and iOS) and returns the redirect URL |
+| `show({scope, state})` | Opens the sign-in page and returns the redirect URL |
 | `getSigninUrl({scope, state})` | URL of the sign-in page |
 | `getSignupUrl({scope, state})` | URL of the sign-up page |
 | `isState(callbackUrl)` | Whether the `state` of the redirect URL belongs to this instance |
@@ -209,15 +223,23 @@ All methods are on the `Casdoor` class. The HTTP methods return the `http.Respon
 | `isTokenExpired(token)` | Whether a JWT has expired |
 | `isNonce(idToken)` | Whether the ID token contains the nonce of this instance |
 
-`show()` and `showFullscreen()` throw these exceptions:
+`show()` throws these exceptions:
 
 | Exception | When |
 | --- | --- |
 | `CasdoorAuthCancelledException` | The user closed the sign-in page |
 | `CasdoorDesktopWebViewNotAvailableException` | No web view is available on Linux or Windows |
 | `CasdoorDesktopWebViewAlreadyOpenException` | A sign-in window is already open on Linux or Windows |
-| `CasdoorMobileWebAuthSessionNotAvailableException` | `ASWebAuthenticationSession` is not available or already in use on iOS |
-| `CasdoorMobileWebAuthSessionFailedException` | `ASWebAuthenticationSession` failed to start on iOS |
+
+## Migrating from 1.x
+
+Version 2.0.0 shows the sign-in page in the system browser on Android, iOS and macOS instead of the web view of flutter_inappwebview:
+
+- On Android, add the callback activity to `AndroidManifest.xml` as described in [Android](#android). Without it the sign-in never returns to your app.
+- `showFullscreen()` is deprecated and works like `show()`.
+- `InAppAuthBrowser`, `FullScreenAuthPage`, `CASDOOR_USER_AGENT` and the `buildContext`, `showFullscreen` and `isMaterialStyle` fields of `CasdoorSdkParams` are removed.
+- `CasdoorMobileWebAuthSessionNotAvailableException` and `CasdoorMobileWebAuthSessionFailedException` are no longer thrown.
+- The workarounds for flutter_inappwebview are no longer needed: the `android.r8.proguardAndroidTxt.disallowed` property on Android, and nuget.exe and short project paths on Windows.
 
 ## Example
 

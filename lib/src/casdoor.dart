@@ -26,7 +26,7 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 /// code flow and PKCE.
 ///
 /// Each instance generates its own PKCE code verifier, OIDC nonce and OAuth
-/// state, so use the same instance for [show] (or [showFullscreen]) and for
+/// state, so use the same instance for [show] and for
 /// [requestOauthAccessToken].
 class Casdoor {
   /// Configuration of the Casdoor application to sign in to.
@@ -114,10 +114,13 @@ class Casdoor {
         });
   }
 
-  /// Opens the sign-in page in a new window and returns the callback URL that
-  /// contains the authorization `code` and `state`.
+  /// Opens the sign-in page and returns the callback URL that contains the
+  /// authorization `code` and `state`.
   ///
-  /// Throws [CasdoorAuthCancelledException] if the user closes the window.
+  /// The page is shown in the system browser on Android, iOS and macOS, in a
+  /// web view window on Linux and Windows, and in a popup window on the Web.
+  ///
+  /// Throws [CasdoorAuthCancelledException] if the user closes the page.
   Future<String> show({
     String scope = 'read',
     String? state,
@@ -128,24 +131,16 @@ class Casdoor {
     ));
   }
 
-  /// Opens the sign-in page in a full screen page pushed on the navigator of
-  /// [buildContext] and returns the callback URL that contains the
-  /// authorization `code` and `state`. Supported on Android and iOS.
-  ///
-  /// Throws [CasdoorAuthCancelledException] if the user leaves the page.
+  /// Same as [show]. [buildContext] and [isMaterialStyle] are ignored.
+  @Deprecated('The sign-in page is shown in the system browser since 2.0.0, '
+      'use show() instead')
   Future<String> showFullscreen(
     BuildContext buildContext, {
     bool? isMaterialStyle,
     String scope = 'read',
     String? state,
   }) {
-    return CasdoorOauth.authenticate(CasdoorSdkParams(
-      url: getSigninUrl(scope: scope, state: state).toString(),
-      callbackUrlScheme: config.callbackUrlScheme,
-      buildContext: buildContext,
-      showFullscreen: true,
-      isMaterialStyle: isMaterialStyle ?? true,
-    ));
+    return show(scope: scope, state: state);
   }
 
   /// Exchanges the authorization [code] for an access token, an ID token and
@@ -250,7 +245,7 @@ class Casdoor {
   }
 
   /// Returns whether the `state` query parameter of [callbackUrl], as returned
-  /// by [show] or [showFullscreen], matches the [state] of this instance.
+  /// by [show], matches the [state] of this instance.
   ///
   /// Check it before calling [requestOauthAccessToken] to prevent CSRF.
   bool isState(String callbackUrl) {

@@ -9,7 +9,7 @@ flutter create --platforms=android,ios,linux,macos,web,windows .
 flutter run
 ```
 
-On native platforms the redirect URI is `casdoor://callback`. On the Web it is `http://localhost:9000/callback.html`, served from [web/callback.html](web/callback.html), so run the app on port 9000:
+On native platforms the redirect URI is `casdoor://callback`. On Android, add the callback activity for the `casdoor` scheme to `android/app/src/main/AndroidManifest.xml` as described in the [Android setup](../README.md#android) of the SDK. On the Web the redirect URI is `http://localhost:9000/callback.html`, served from [web/callback.html](web/callback.html), so run the app on port 9000:
 
 ```bash
 flutter run -d chrome --web-port 9000
