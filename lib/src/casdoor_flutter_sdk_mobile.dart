@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import 'dart:async';
-import 'dart:collection';
 
 import 'package:casdoor_flutter_sdk/casdoor_flutter_sdk.dart';
 import 'package:flutter/cupertino.dart';
@@ -21,18 +20,26 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
+/// In-app browser that reports when it exits and lets a callback decide
+/// whether to load a URL.
 class InAppAuthBrowser extends InAppBrowser {
+  /// Creates an in-app browser.
   InAppAuthBrowser({
-    int? windowId,
-    UnmodifiableListView<UserScript>? initialUserScripts,
-  }) : super(windowId: windowId, initialUserScripts: initialUserScripts);
+    super.windowId,
+    super.initialUserScripts,
+  });
 
+  /// Called when the browser exits.
   Function? onExitCallback;
+
+  /// Decides whether the browser loads a URL.
   Future<NavigationActionPolicy> Function(Uri? url)?
       onShouldOverrideUrlLoadingCallback;
 
+  /// Sets [onExitCallback].
   void setOnExitCallback(Function cb) => (onExitCallback = cb);
 
+  /// Sets [onShouldOverrideUrlLoadingCallback].
   void setOnShouldOverrideUrlLoadingCallback(
           Future<NavigationActionPolicy> Function(Uri? url) cb) =>
       onShouldOverrideUrlLoadingCallback = cb;
@@ -57,12 +64,16 @@ class InAppAuthBrowser extends InAppBrowser {
 
 // -----------------------------------------------------------------------------
 
+/// Full screen page that shows the sign-in page in a web view and pops with
+/// the callback URL.
 class FullScreenAuthPage extends StatefulWidget {
+  /// Creates a full screen sign-in page.
   const FullScreenAuthPage({
     super.key,
     required this.params,
   });
 
+  /// Parameters of the sign-in.
   final CasdoorSdkParams params;
 
   @override
@@ -136,13 +147,19 @@ class _FullScreenAuthPageState extends State<FullScreenAuthPage> {
 
 // -----------------------------------------------------------------------------
 
+/// Implementation for Android, iOS and macOS that signs in with
+/// flutter_inappwebview.
 class CasdoorFlutterSdkMobile extends CasdoorFlutterSdkPlatform {
+  /// Constructs the mobile implementation.
   CasdoorFlutterSdkMobile() : super.create();
 
+  /// Web authentication session in progress on iOS.
   WebAuthenticationSession? session;
+
+  /// Whether to clear the cache before the next sign-in.
   bool willClearCache = false;
 
-  /// Registers this class as the default instance of [PathProviderPlatform]
+  /// Registers this class as the default instance of [CasdoorFlutterSdkPlatform]
   static void registerWith() {
     CasdoorFlutterSdkPlatform.instance = CasdoorFlutterSdkMobile();
   }
@@ -173,7 +190,7 @@ class CasdoorFlutterSdkMobile extends CasdoorFlutterSdkPlatform {
       return result;
     }
 
-    throw CasdoorAuthCancelledException;
+    throw CasdoorAuthCancelledException();
   }
 
   Future<String> _inAppBrowserAuth(CasdoorSdkParams params) async {
@@ -182,7 +199,7 @@ class CasdoorFlutterSdkMobile extends CasdoorFlutterSdkPlatform {
 
     browser.setOnExitCallback(() {
       if (!isFinished.isCompleted) {
-        isFinished.completeError(CasdoorAuthCancelledException);
+        isFinished.completeError(CasdoorAuthCancelledException());
       }
     });
 
@@ -218,7 +235,7 @@ class CasdoorFlutterSdkMobile extends CasdoorFlutterSdkPlatform {
 
   Future<String> _webAuthSession(CasdoorSdkParams params) async {
     if ((session != null) || (!await WebAuthenticationSession.isAvailable())) {
-      throw CasdoorMobileWebAuthSessionNotAvailableException;
+      throw CasdoorMobileWebAuthSessionNotAvailableException();
     }
 
     bool hasStarted = false;
@@ -238,7 +255,7 @@ class CasdoorFlutterSdkMobile extends CasdoorFlutterSdkPlatform {
         await session?.dispose();
         session = null;
         if (!isFinished.isCompleted) {
-          isFinished.completeError(CasdoorAuthCancelledException);
+          isFinished.completeError(CasdoorAuthCancelledException());
         }
       },
     );
@@ -247,7 +264,7 @@ class CasdoorFlutterSdkMobile extends CasdoorFlutterSdkPlatform {
       hasStarted = await session?.start() ?? false;
     }
     if (!hasStarted) {
-      throw CasdoorMobileWebAuthSessionFailedException;
+      throw CasdoorMobileWebAuthSessionFailedException();
     }
 
     return isFinished.future;

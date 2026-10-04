@@ -12,38 +12,96 @@ concurrency:
 
 jobs:
   test:
-    name: Test casdoor-flutter-sdk  on ${{ matrix.os }}
+    name: Test casdoor-flutter-sdk on ${{ matrix.os }} with Flutter ${{ matrix.flutter-version || 'stable' }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
+        # The minimum version in pubspec.yaml and the latest stable version
+        flutter-version: ["3.24.5", ""]
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v3
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
         with:
           distribution: "temurin"
           java-version: "17"
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
-          flutter-version: "3.24.5"
+          flutter-version: ${{ matrix.flutter-version }}
       - name: Install dependencies
-        run: flutter packages get
+        run: flutter pub get
       - name: Analyze
         run: flutter analyze
       - name: Format
+        if: matrix.flutter-version == ''
         run: dart format --set-exit-if-changed .
       - name: Run tests
         run: flutter test --coverage
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        if: matrix.flutter-version == ''
+        uses: codecov/codecov-action@v7
         with:
-          os: ${{ matrix.os }}
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: ${{ matrix.os }}
+
+  build-example:
+    name: Build example on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platforms: android,linux,web
+            targets: apk linux web
+          - os: windows-latest
+            platforms: windows
+            targets: windows
+          - os: macos-latest
+            platforms: ios,macos
+            targets: macos ios
+    defaults:
+      run:
+        shell: bash
+        working-directory: example
+
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: "temurin"
+          java-version: "17"
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev libwebkit2gtk-4.1-dev
+      - name: Create platform folders
+        run: |
+          flutter create --platforms=${{ matrix.platforms }} --project-name casdoor_flutter_sdk_example .
+          rm -rf test
+          # Workaround for flutter_inappwebview_android on AGP 9, see README
+          if [ -d android ]; then
+            echo "android.r8.proguardAndroidTxt.disallowed=false" >> android/gradle.properties
+          fi
+      - name: Build
+        run: |
+          for target in ${{ matrix.targets }}; do
+            case $target in
+              ios) flutter build ios --simulator ;;
+              *) flutter build $target ;;
+            esac
+          done
 
   # release on Github and pub.dev
   publish:
-    needs: test
+    needs: [test, build-example]
     if: github.repository == 'casdoor/casdoor-flutter-sdk' && github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:

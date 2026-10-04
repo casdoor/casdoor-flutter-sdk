@@ -4,7 +4,7 @@
     <a href="https://pub.dev/packages/casdoor_flutter_sdk"><img src="https://img.shields.io/pub/likes/casdoor_flutter_sdk?logo=flutter" alt="Pub.dev likes"/></a>
     <a href="https://pub.dev/packages/casdoor_flutter_sdk"><img src="https://img.shields.io/pub/points/casdoor_flutter_sdk?logo=flutter" alt="Pub.dev points"/></a>
     <a href="https://pub.dev/packages/casdoor_flutter_sdk"><img src="https://img.shields.io/pub/v/casdoor_flutter_sdk.svg?include_prereleases" alt="latest version"/></a>
-    <a href="https://pub.dev/packages/casdoor_flutter_sdk"><img src="https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20macOS%20%7C%20Web-blue?logo=flutter" alt="Platform"/></a>
+    <a href="https://pub.dev/packages/casdoor_flutter_sdk"><img src="https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20macOS%20%7C%20Linux%20%7C%20Windows%20%7C%20Web-blue?logo=flutter" alt="Platform"/></a>
     <a href="./LICENSE"><img src="https://img.shields.io/github/license/agoraio-community/flutter-uikit?color=lightgray" alt="License"/></a>
 </p>
 
@@ -42,38 +42,36 @@ This section has examples of code for the following tasks:
 <span id="jump1">Initialization requires 6 parameters</span>
 
 Initialization requires 6 parameters, which are all str type:
-| Name (in order) | Must | Description |
+| Name | Must | Description |
 | ---- | ---- |---- |
 | clientId | Yes | Application.client_id |
-| endpoint | Yes | Casdoor Server Url, such as `door.casdoor.com` |
+| serverUrl | Yes | Casdoor Server Url, such as `https://door.casdoor.com` |
 | organizationName | Yes | Organization name |
 | appName | Yes | Application name |
-| redirectUri | Yes | URI of Web redirection |
-| callbackUrlScheme | Yes | URL Scheme |
+| redirectUri | No | Redirect URI, `casdoor://callback` by default |
+| callbackUrlScheme | No | URL Scheme of the redirect URI, `casdoor` by default |
 
-```
-  final CasdoorFlutterSdkConfig _config =  CasdoorFlutterSdkConfig(
-      clientId: "014ae4bd048734ca2dea",
-      endpoint: "door.casdoor.com",
-      organizationName: "casbin",
-      appName: "app-casnode",
-      redirectUri: "http://localhost:9000/callback",
-      callbackUrlScheme: "casdoor"
-  );
+```dart
+final AuthConfig _config = AuthConfig(
+  clientId: "014ae4bd048734ca2dea",
+  serverUrl: "https://door.casdoor.com",
+  organizationName: "casbin",
+  appName: "app-casnode",
+  redirectUri: "casdoor://callback",
+  callbackUrlScheme: "casdoor",
+);
 ```
 
 <span id="jump2">Judgment platform</span>
 
-Set the callbackuri parameter by judging different platforms
+Set the redirect URI according to the platform. On the Web it must point to the callback page of your app (see [Web](#web)):
 
-```
- final platform = await CasdoorFlutterSdkPlatform.getPlatformVersion();
-    String callbackUri;
-    if (platform == "web") {
-       callbackUri = "${_config.redirectUri}.html";
-    } else {
-       callbackUri = "${_config.callbackUrlScheme}://callback" ;
-    }
+```dart
+if (kIsWeb) {
+  _config.redirectUri = "http://localhost:9000/callback.html";
+} else {
+  _config.redirectUri = "${_config.callbackUrlScheme}://callback";
+}
 ```
 
 <span id="jump3">Authorize with the Casdoor server</span>
@@ -96,13 +94,25 @@ After Casdoor verification passed, it will be redirected to your application wit
 
 Your application can get the `code` and call` _casdoor.requestOauthAccessToken(code)`, then parse out jwt token.
 
+Use the same `Casdoor` instance for signing in and requesting the token, it holds the PKCE code verifier, the nonce and a random `state`. Check the `state` before requesting the token:
+
+```dart
+final Casdoor casdoor = Casdoor(config: _config);
+final String callbackUrl = await casdoor.show(scope: "openid profile email");
+if (!casdoor.isState(callbackUrl)) {
+  throw Exception("state mismatch");
+}
+final String code = Uri.parse(callbackUrl).queryParameters["code"] ?? "";
+final response = await casdoor.requestOauthAccessToken(code);
+final String accessToken = jsonDecode(response.body)["access_token"];
+```
+
 # Getting Started
 
-Add casdoor-flutter-sdk to the dependencies of your pubspec.yaml.
+Add casdoor-flutter-sdk to the dependencies of your pubspec.yaml:
 
-```
-dependencies:
-  casdoor_flutter_sdk: ^1.0.0
+```bash
+flutter pub add casdoor_flutter_sdk
 ```
 
 Notes for different platforms:
@@ -111,9 +121,15 @@ Notes for different platforms:
 
 Please check the [documentation](https://inappwebview.dev/docs/intro) of the InAppWebView package for more details about setting up the project.
 
-## Linux and macOS
+On Android Gradle Plugin 9 or later (the default of new projects since Flutter 3.47), the build of `flutter_inappwebview_android` fails with ``getDefaultProguardFile('proguard-android.txt')` is no longer supported``. Until the InAppWebView package is fixed ([issue](https://github.com/pichillilorenzo/flutter_inappwebview/issues/2852)), add this line to *android/gradle.properties* of your app:
 
-Add the package `desktop_webview_window: ^0.2.3` inside *dependencies* to your *pubspec.yaml* file.
+```properties
+android.r8.proguardAndroidTxt.disallowed=false
+```
+
+## Linux and Windows
+
+Add the package `desktop_webview_window: ^0.3.0` inside *dependencies* to your *pubspec.yaml* file.
 
 Modify your *main* function to look like the following:
 
@@ -157,7 +173,7 @@ For the Sign in with Apple in web_message response mode, postMessage from https:
 #### Get sign up url
 
 ```typescript
-getSignupUrl(enablePassword)
+getSignupUrl()
 ```
 
 #### Get sign in url
@@ -220,11 +236,21 @@ isTokenExpired()
 isNonce()
 ```
 
+#### Verify state
+
+```typescript
+isState()
+```
+
 # Caveats
 
 ## Windows
 
 There is a known bug in the desktop_webview_window package that causes random crashes of the browser window (see [issue](https://github.com/MixinNetwork/flutter-plugins/issues/283)).
+
+The Windows build of the InAppWebView package downloads its dependencies with NuGet, so [nuget.exe](https://www.nuget.org/downloads) must be in the `PATH` (for example `winget install Microsoft.NuGet`), otherwise the build fails with `NUGET-NOTFOUND`.
+
+Keep the path of your project short. The headers of the InAppWebView package are nested deeply, and the build fails with `Cannot open include file` when their full path exceeds 260 characters.
 
 ## Linux (Ubuntu)
 
@@ -236,4 +262,4 @@ There are instances where JavaScript is not working inside WKWebView. Please rep
 
 # Example
 
-See at: https://github.com/casdoor/casdoor-flutter-example
+See [example/lib/main.dart](example/lib/main.dart), and https://github.com/casdoor/casdoor-flutter-example for a complete app with all platform folders.

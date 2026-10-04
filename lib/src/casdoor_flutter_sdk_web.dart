@@ -23,9 +23,12 @@ import 'package:web/web.dart' as web;
 import 'package:casdoor_flutter_sdk/casdoor_flutter_sdk.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 
+/// Implementation for the Web that signs in in a popup window.
 class CasdoorFlutterSdkWeb extends CasdoorFlutterSdkPlatform {
+  /// Constructs the web implementation.
   CasdoorFlutterSdkWeb() : super.create();
 
+  /// Registers this class as the default instance of [CasdoorFlutterSdkPlatform]
   static void registerWith(Registrar registrar) {
     CasdoorFlutterSdkPlatform.instance = CasdoorFlutterSdkWeb();
   }
@@ -70,7 +73,8 @@ class CasdoorFlutterSdkWeb extends CasdoorFlutterSdkPlatform {
       if (origin == appleOrigin.toString()) {
         try {
           final Map<String, dynamic> message =
-              jsonDecode(event.data as String) as Map<String, dynamic>;
+              jsonDecode(event.data.dartify() as String)
+                  as Map<String, dynamic>;
           if (message['method'] == 'oauthDone') {
             final appleAuth = message['data']['authorization'];
             if (appleAuth != null) {
@@ -80,10 +84,11 @@ class CasdoorFlutterSdkWeb extends CasdoorFlutterSdkPlatform {
               return appleOrigin.replace(fragment: appleAuthQuery).toString();
             }
           }
-        } on FormatException {}
+        } on FormatException {
+          // Ignore messages from Apple that are not JSON.
+        }
       }
     }
-    ;
     throw PlatformException(
         code: 'error', message: 'Iterable window.onMessage is empty');
   }

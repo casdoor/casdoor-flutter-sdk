@@ -22,18 +22,10 @@ class CasdoorOauth {
   }
 
   static Future<String> authenticate(CasdoorSdkParams params) async {
-    try {
-      return CasdoorFlutterSdkPlatform().authenticate(params);
-    } catch (_) {
-      rethrow;
-    }
+    return CasdoorFlutterSdkPlatform().authenticate(params);
   }
 
   static Future<bool> clearCache() async {
-    try {
-      return CasdoorFlutterSdkPlatform().clearCache();
-    } catch (_) {
-      rethrow;
-    }
+    return CasdoorFlutterSdkPlatform().clearCache();
   }
 }

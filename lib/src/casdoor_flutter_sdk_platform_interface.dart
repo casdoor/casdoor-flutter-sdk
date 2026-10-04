@@ -17,10 +17,12 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'casdoor_flutter_sdk_method_channel.dart';
 
+/// Interface that the platform implementations of the SDK extend.
 abstract class CasdoorFlutterSdkPlatform extends PlatformInterface {
-  // Returns singleton instance.
+  /// Returns the implementation registered for the current platform.
   factory CasdoorFlutterSdkPlatform() => _instance;
 
+  /// Constructs a platform implementation.
   CasdoorFlutterSdkPlatform.create() : super(token: _token);
 
   static CasdoorFlutterSdkPlatform _instance = MethodChannelCasdoorFlutterSdk();
@@ -35,14 +37,18 @@ abstract class CasdoorFlutterSdkPlatform extends PlatformInterface {
 
   static final Object _token = Object();
 
+  /// Returns `mobile`, `desktop` or `web` depending on the implementation.
   Future<String> getPlatformVersion() {
     throw UnimplementedError('platformVersion() has not been implemented.');
   }
 
+  /// Clears the cookies and cache of the sign-in web view.
   Future<bool> clearCache() {
     throw UnimplementedError('clearCache() has not been implemented.');
   }
 
+  /// Opens the sign-in page described by [params] and returns the callback
+  /// URL.
   Future<String> authenticate(CasdoorSdkParams params) {
     throw UnimplementedError('authenticate() has not been implemented.');
   }

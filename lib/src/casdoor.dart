@@ -22,16 +22,33 @@ import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:jwt_decoder/jwt_decoder.dart';
 
+/// Client for signing in to a Casdoor server with the OAuth 2.0 authorization
+/// code flow and PKCE.
+///
+/// Each instance generates its own PKCE code verifier, OIDC nonce and OAuth
+/// state, so use the same instance for [show] (or [showFullscreen]) and for
+/// [requestOauthAccessToken].
 class Casdoor {
+  /// Configuration of the Casdoor application to sign in to.
   final AuthConfig config;
+
+  /// PKCE code verifier sent with [requestOauthAccessToken].
   late final String codeVerifier;
+
+  /// OIDC nonce sent in the authorization request, see [isNonce].
   late final String nonce;
 
+  /// Default OAuth state sent in the authorization request, see [isState].
+  late final String state;
+
+  /// Creates a client for the Casdoor application described by [config].
   Casdoor({required this.config}) {
     codeVerifier = generateRandomString(43);
-    nonce = generateRandomString(12);
+    nonce = generateRandomString(32);
+    state = generateRandomString(32);
   }
 
+  /// Returns the scheme of [AuthConfig.serverUrl], `https` if it has none.
   String parseScheme() {
     String scheme = 'https';
     final uri = Uri.parse(config.serverUrl);
@@ -41,16 +58,22 @@ class Casdoor {
     return scheme;
   }
 
+  /// Returns the host of [AuthConfig.serverUrl].
   String parseHost() {
     final uri = Uri.parse(config.serverUrl);
     return uri.host;
   }
 
+  /// Returns the port of [AuthConfig.serverUrl].
   int parsePort() {
     final uri = Uri.parse(config.serverUrl);
     return uri.port;
   }
 
+  /// Returns the URL of the Casdoor sign-in page.
+  ///
+  /// If [state] is omitted, the random [Casdoor.state] of this instance is
+  /// used.
   Uri getSigninUrl({String scope = 'read', String? state}) {
     return Uri(
         scheme: parseScheme(),
@@ -61,7 +84,7 @@ class Casdoor {
           'client_id': config.clientId,
           'response_type': 'code',
           'scope': scope,
-          'state': state ?? config.appName,
+          'state': state ?? this.state,
           'code_challenge_method': 'S256',
           'nonce': nonce,
           'code_challenge': generateCodeChallenge(codeVerifier),
@@ -69,6 +92,10 @@ class Casdoor {
         });
   }
 
+  /// Returns the URL of the Casdoor sign-up page.
+  ///
+  /// If [state] is omitted, the random [Casdoor.state] of this instance is
+  /// used.
   Uri getSignupUrl({String scope = 'read', String? state}) {
     return Uri(
         scheme: parseScheme(),
@@ -79,7 +106,7 @@ class Casdoor {
           'client_id': config.clientId,
           'response_type': 'code',
           'scope': scope,
-          'state': state ?? config.appName,
+          'state': state ?? this.state,
           'code_challenge_method': 'S256',
           'nonce': nonce,
           'code_challenge': generateCodeChallenge(codeVerifier),
@@ -87,6 +114,10 @@ class Casdoor {
         });
   }
 
+  /// Opens the sign-in page in a new window and returns the callback URL that
+  /// contains the authorization `code` and `state`.
+  ///
+  /// Throws [CasdoorAuthCancelledException] if the user closes the window.
   Future<String> show({
     String scope = 'read',
     String? state,
@@ -97,6 +128,11 @@ class Casdoor {
     ));
   }
 
+  /// Opens the sign-in page in a full screen page pushed on the navigator of
+  /// [buildContext] and returns the callback URL that contains the
+  /// authorization `code` and `state`. Supported on Android and iOS.
+  ///
+  /// Throws [CasdoorAuthCancelledException] if the user leaves the page.
   Future<String> showFullscreen(
     BuildContext buildContext, {
     bool? isMaterialStyle,
@@ -112,6 +148,8 @@ class Casdoor {
     ));
   }
 
+  /// Exchanges the authorization [code] for an access token, an ID token and
+  /// a refresh token.
   Future<http.Response> requestOauthAccessToken(String code) async {
     return await http.post(
         Uri(
@@ -128,6 +166,7 @@ class Casdoor {
         });
   }
 
+  /// Gets a new access token with [refreshToken].
   Future<http.Response> refreshToken(String refreshToken, String? clientSecret,
       {String scope = 'read'}) async {
     final body = {
@@ -149,6 +188,10 @@ class Casdoor {
         body: body);
   }
 
+  /// Signs the user out of Casdoor.
+  ///
+  /// If [clearCache] is true, the cookies and cache of the sign-in web view are
+  /// also cleared, so the next sign-in asks for the credentials again.
   Future<http.Response> tokenLogout(
     String idTokenHint,
     String? postLogoutRedirectUri,
@@ -164,7 +207,8 @@ class Casdoor {
         ),
         body: {
           'id_token_hint': idTokenHint,
-          'post_logout_redirect_uri': postLogoutRedirectUri,
+          if (postLogoutRedirectUri != null)
+            'post_logout_redirect_uri': postLogoutRedirectUri,
           'state': state
         });
     if (clearCache == true) {
@@ -173,6 +217,7 @@ class Casdoor {
     return resp;
   }
 
+  /// Gets the claims of the user that [accessToken] was issued to.
   Future<http.Response> getUserInfo(String accessToken) async {
     return await http.get(
       Uri(
@@ -185,25 +230,39 @@ class Casdoor {
     );
   }
 
+  /// Decodes the payload of the JWT [token] without verifying its signature.
   Map<String, dynamic> decodedToken(String token) {
     final Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
     return decodedToken;
   }
 
+  /// Returns whether the JWT [token] has expired.
   bool isTokenExpired(String token) {
     final bool isTokenExpired = JwtDecoder.isExpired(token);
     return isTokenExpired;
   }
 
+  /// Returns whether the ID [token] contains the [nonce] of this instance.
   bool isNonce(String token) {
     final Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
     final bool isNonce = (decodedToken['nonce'] == nonce);
     return isNonce;
   }
+
+  /// Returns whether the `state` query parameter of [callbackUrl], as returned
+  /// by [show] or [showFullscreen], matches the [state] of this instance.
+  ///
+  /// Check it before calling [requestOauthAccessToken] to prevent CSRF.
+  bool isState(String callbackUrl) {
+    final Uri uri = Uri.parse(callbackUrl);
+    return uri.queryParameters['state'] == state;
+  }
 }
 
+/// Returns a random alphanumeric string of [length] characters generated with
+/// a cryptographically secure random number generator.
 String generateRandomString(int length) {
-  final random = Random();
+  final random = Random.secure();
   const availableChars =
       'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
   final randomString = List.generate(length,
@@ -212,6 +271,7 @@ String generateRandomString(int length) {
   return randomString;
 }
 
+/// Returns the PKCE S256 code challenge of [verifier].
 String generateCodeChallenge(String verifier) {
   final bytes = utf8.encode(verifier);
   final digest = sha256.convert(bytes);

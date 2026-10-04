@@ -20,11 +20,15 @@ import 'package:desktop_webview_window/desktop_webview_window.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
+/// Implementation for Linux and Windows that signs in in a web view window.
 class CasdoorFlutterSdkDesktop extends CasdoorFlutterSdkPlatform {
+  /// Constructs the desktop implementation.
   CasdoorFlutterSdkDesktop() : super.create();
+
+  /// Whether a sign-in window is open.
   bool isWindowOpen = false;
 
-  /// Registers this class as the default instance of [PathProviderPlatform]
+  /// Registers this class as the default instance of [CasdoorFlutterSdkPlatform]
   static void registerWith() {
     CasdoorFlutterSdkPlatform.instance = CasdoorFlutterSdkDesktop();
   }
@@ -57,7 +61,7 @@ class CasdoorFlutterSdkDesktop extends CasdoorFlutterSdkPlatform {
     final bool isWebviewAvailable = await WebviewWindow.isWebviewAvailable();
 
     if (isWindowOpen == true) {
-      throw CasdoorDesktopWebViewAlreadyOpenException;
+      throw CasdoorDesktopWebViewAlreadyOpenException();
     }
 
     if (isWebviewAvailable == true) {
@@ -77,22 +81,26 @@ class CasdoorFlutterSdkDesktop extends CasdoorFlutterSdkPlatform {
         ),
       );
       webview
-        ..launch(params.url)
-        ..addOnUrlRequestCallback((requestUrl) {
+        ..setOnUrlRequestCallback((requestUrl) {
           final uri = Uri.parse(requestUrl);
           if (uri.scheme == params.callbackUrlScheme) {
             returnUrl = requestUrl;
             webview.close();
-            isWindowClosed.complete(returnUrl);
+            if (!isWindowClosed.isCompleted) {
+              isWindowClosed.complete(returnUrl);
+            }
+            return false;
           }
+          return true;
         })
+        ..launch(params.url)
         ..onClose.whenComplete(() {
           if (returnUrl != null) {
             if (isWindowClosed.isCompleted == false) {
               isWindowClosed.complete(returnUrl);
             }
           } else {
-            isWindowClosed.completeError(CasdoorAuthCancelledException);
+            isWindowClosed.completeError(CasdoorAuthCancelledException());
           }
 
           isWindowOpen = false;
@@ -102,7 +110,7 @@ class CasdoorFlutterSdkDesktop extends CasdoorFlutterSdkPlatform {
 
       return isWindowClosed.future;
     } else {
-      throw CasdoorDesktopWebViewNotAvailableException;
+      throw CasdoorDesktopWebViewNotAvailableException();
     }
   }
 
