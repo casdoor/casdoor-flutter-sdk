@@ -1,3 +1,17 @@
+# [2.0.0](https://github.com/casdoor/casdoor-flutter-sdk/compare/v1.11.0...v2.0.0) (2026-10-04)
+
+
+### Features
+
+* rewrite README ([5c9b5e2](https://github.com/casdoor/casdoor-flutter-sdk/commit/5c9b5e2984091d8b8d8dce0619d394b892274f7f))
+* sign in with the system browser on Android, iOS and macOS ([745d728](https://github.com/casdoor/casdoor-flutter-sdk/commit/745d728684098fe9dffe81704b52cb98eaf409cd))
+* upgrade dependencies and use secure random PKCE and state ([63519d6](https://github.com/casdoor/casdoor-flutter-sdk/commit/63519d67a1835c61246031414f774de850c83af0))
+
+
+### BREAKING CHANGES
+
+* flutter_inappwebview is replaced by flutter_web_auth_2, Android apps must add its CallbackActivity to AndroidManifest.xml, and showFullscreen() now works like show()
+
 # [1.11.0](https://github.com/casdoor/casdoor-flutter-sdk/compare/v1.10.0...v1.11.0) (2025-06-10)
 
 
