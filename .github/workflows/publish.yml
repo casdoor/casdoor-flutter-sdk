@@ -1,0 +1,31 @@
+name: Publish to pub.dev
+
+# pub.dev only accepts automated publishing from a tag push, see
+# https://dart.dev/tools/pub/automated-publishing
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      # for the OIDC token that setup-dart passes to pub.dev
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      # sets up the OIDC token for pub.dev
+      - uses: dart-lang/setup-dart@v1
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      # the version is only set here and never committed back to the repository
+      - name: Set the version from the tag
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          sed -i "s/^version: .*/version: $VERSION/" pubspec.yaml
+          printf '## %s\n\nSee https://github.com/%s/releases/tag/%s\n\n' "$VERSION" "$GITHUB_REPOSITORY" "$GITHUB_REF_NAME" | cat - CHANGELOG.md > CHANGELOG.tmp
+          mv CHANGELOG.tmp CHANGELOG.md
+      - run: flutter pub get
+      - run: flutter pub publish --force

@@ -95,54 +95,22 @@ jobs:
             esac
           done
 
-  # release on Github and pub.dev
-  publish:
+  # tag and release the next version on GitHub, the tag triggers publish.yml
+  # to publish the package to pub.dev
+  release:
     needs: [test, build-example]
     if: github.repository == 'casdoor/casdoor-flutter-sdk' && github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: dart-lang/setup-dart@v1
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v7
         with:
-          node-version: 20
-      - run: npm install -g "@semantic-release/changelog"
-      - run: npm install -g "@semantic-release/git"
-      - run: npm install -g "pub-semantic-release"
-
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
       - name: Semantic Release
-        run: |
-          export NODE_PATH="$(npm root -g)"
-          npx semantic-release@17
+        run: npx semantic-release@24
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN  }}
-
-  build:
-    needs: [test,publish]
-    if: github.repository == 'casdoor/casdoor-flutter-sdk' && github.event_name == 'push'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Publish Dart/Flutter package
-        uses: k-paxian/dart-package-publisher@master
-        with:
-          flutter: true
-          skipTests: true
-          dryRunOnly: true
-          credentialJson: ${{ secrets.CREDENTIAL_JSON }}
-
-  deploy:
-    needs: [test,publish,build]
-    if: github.repository == 'casdoor/casdoor-flutter-sdk' && github.event_name == 'push'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Publish Dart/Flutter package
-        uses: k-paxian/dart-package-publisher@master
-        with:
-          flutter: true
-          skipTests: true
-          credentialJson: ${{ secrets.CREDENTIAL_JSON }}
-
+          # a personal access token, so that the tag it pushes triggers publish.yml
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
