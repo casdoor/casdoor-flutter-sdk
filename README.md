@@ -1,265 +1,229 @@
 # Casdoor Flutter SDK
 
-<p align="left">
-    <a href="https://pub.dev/packages/casdoor_flutter_sdk"><img src="https://img.shields.io/pub/likes/casdoor_flutter_sdk?logo=flutter" alt="Pub.dev likes"/></a>
-    <a href="https://pub.dev/packages/casdoor_flutter_sdk"><img src="https://img.shields.io/pub/points/casdoor_flutter_sdk?logo=flutter" alt="Pub.dev points"/></a>
-    <a href="https://pub.dev/packages/casdoor_flutter_sdk"><img src="https://img.shields.io/pub/v/casdoor_flutter_sdk.svg?include_prereleases" alt="latest version"/></a>
-    <a href="https://pub.dev/packages/casdoor_flutter_sdk"><img src="https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20macOS%20%7C%20Linux%20%7C%20Windows%20%7C%20Web-blue?logo=flutter" alt="Platform"/></a>
-    <a href="./LICENSE"><img src="https://img.shields.io/github/license/agoraio-community/flutter-uikit?color=lightgray" alt="License"/></a>
-</p>
+[![pub version](https://img.shields.io/pub/v/casdoor_flutter_sdk?logo=dart)](https://pub.dev/packages/casdoor_flutter_sdk)
+[![pub points](https://img.shields.io/pub/points/casdoor_flutter_sdk?logo=flutter)](https://pub.dev/packages/casdoor_flutter_sdk/score)
+[![Flutter CI](https://github.com/casdoor/casdoor-flutter-sdk/actions/workflows/dart.yml/badge.svg)](https://github.com/casdoor/casdoor-flutter-sdk/actions/workflows/dart.yml)
+[![codecov](https://codecov.io/gh/casdoor/casdoor-flutter-sdk/branch/master/graph/badge.svg)](https://codecov.io/gh/casdoor/casdoor-flutter-sdk)
+[![GitHub release](https://img.shields.io/github/v/release/casdoor/casdoor-flutter-sdk)](https://github.com/casdoor/casdoor-flutter-sdk/releases/latest)
+[![platform](https://img.shields.io/badge/platform-Android%20%7C%20iOS%20%7C%20macOS%20%7C%20Linux%20%7C%20Windows%20%7C%20Web-blue?logo=flutter)](#platform-setup)
+[![license](https://img.shields.io/github/license/casdoor/casdoor-flutter-sdk)](LICENSE)
+[![Discord](https://img.shields.io/discord/1022748306096537660?logo=discord&label=discord&color=5865F2)](https://discord.gg/5rPsrAzK7S)
 
-casdoor-flutter-sdk will allow you to easily connect your Flutter-based application to the [Casdoor authentication system](https://casdoor.org/) without having to implement it from scratch.
+Sign users in to your Flutter app with [Casdoor](https://casdoor.ai), on Android, iOS, macOS, Linux, Windows and the Web.
 
-The following platforms are supported:
+The SDK opens the Casdoor sign-in page, gets the authorization code with the OAuth 2.0 authorization code flow and PKCE, and exchanges it for tokens. It also refreshes tokens, gets user info and signs users out.
 
-- Android
-- iOS
-- Linux
-- macOS
-- Web
-- Windows
-
-| **Android**                    | **iOS**                | **Web**                |
+| Android                        | iOS                    | Web                    |
 | ------------------------------ | ---------------------- | ---------------------- |
 | ![Android](screen-andriod.gif) | ![iOS](screen-ios.gif) | ![Web](screen-web.gif) |
 
-# Features
-
-Use this plugin in your Flutter app to:
-
-- Connect to casdoor for SSO
-- Get the token after the casdoor authentication
-
-# Usage
-
-This section has examples of code for the following tasks:
-
-- [Initialization requires 6 parameters](#jump1)
-- [Judgment platform](#jump2)
-- [Authorize with the Casdoor server](#jump3)
-- [Get token and parse](#jump4)
-
-<span id="jump1">Initialization requires 6 parameters</span>
-
-Initialization requires 6 parameters, which are all str type:
-| Name | Must | Description |
-| ---- | ---- |---- |
-| clientId | Yes | Application.client_id |
-| serverUrl | Yes | Casdoor Server Url, such as `https://door.casdoor.com` |
-| organizationName | Yes | Organization name |
-| appName | Yes | Application name |
-| redirectUri | No | Redirect URI, `casdoor://callback` by default |
-| callbackUrlScheme | No | URL Scheme of the redirect URI, `casdoor` by default |
-
-```dart
-final AuthConfig _config = AuthConfig(
-  clientId: "014ae4bd048734ca2dea",
-  serverUrl: "https://door.casdoor.com",
-  organizationName: "casbin",
-  appName: "app-casnode",
-  redirectUri: "casdoor://callback",
-  callbackUrlScheme: "casdoor",
-);
-```
-
-<span id="jump2">Judgment platform</span>
-
-Set the redirect URI according to the platform. On the Web it must point to the callback page of your app (see [Web](#web)):
-
-```dart
-if (kIsWeb) {
-  _config.redirectUri = "http://localhost:9000/callback.html";
-} else {
-  _config.redirectUri = "${_config.callbackUrlScheme}://callback";
-}
-```
-
-<span id="jump3">Authorize with the Casdoor server</span>
-
-At this point, we should use some ways to verify with the Casdoor server.
-
-To start, we want you understand clearly the verification process of Casdoor. The following paragraphs will mention your app that wants to use Casdoor as a means of verification as `APP`, and Casdoor as `Casdoor`.
-
-1. `APP` will send a request to` Casdoor`.
-   Since `Casdoor` is a UI-based OAuth provider, you cannot use request management service like Postman to send a URL with parameters and get back a JSON file.
-
-2. The simplest way to try it out is to type the URL in your browser.
-
-3. Type in the URL in your browser in this format: `endpoint/login/oauth/authorize?client_id=xxx&response_type=code&redirect_uri=xxx&scope=read&state=xxx`
-   In this URL the `endpoint` is your Casdoor's location, as mentioned in Step1; then the `xxx` need to be filled out by yourself.
-
-<span id="jump4">Get token and parse</span>
-
-After Casdoor verification passed, it will be redirected to your application with code and state, like `https://localhost:9000/callback?code=xxx&state=yyyy`.
-
-Your application can get the `code` and call` _casdoor.requestOauthAccessToken(code)`, then parse out jwt token.
-
-Use the same `Casdoor` instance for signing in and requesting the token, it holds the PKCE code verifier, the nonce and a random `state`. Check the `state` before requesting the token:
-
-```dart
-final Casdoor casdoor = Casdoor(config: _config);
-final String callbackUrl = await casdoor.show(scope: "openid profile email");
-if (!casdoor.isState(callbackUrl)) {
-  throw Exception("state mismatch");
-}
-final String code = Uri.parse(callbackUrl).queryParameters["code"] ?? "";
-final response = await casdoor.requestOauthAccessToken(code);
-final String accessToken = jsonDecode(response.body)["access_token"];
-```
-
-# Getting Started
-
-Add casdoor-flutter-sdk to the dependencies of your pubspec.yaml:
+## Installation
 
 ```bash
 flutter pub add casdoor_flutter_sdk
 ```
 
-Notes for different platforms:
+Then follow the [platform setup](#platform-setup) for each platform you build for.
 
-## Android and iOS
+## Quick start
 
-Please check the [documentation](https://inappwebview.dev/docs/intro) of the InAppWebView package for more details about setting up the project.
+### 1. Configure
 
-On Android Gradle Plugin 9 or later (the default of new projects since Flutter 3.47), the build of `flutter_inappwebview_android` fails with ``getDefaultProguardFile('proguard-android.txt')` is no longer supported``. Until the InAppWebView package is fixed ([issue](https://github.com/pichillilorenzo/flutter_inappwebview/issues/2852)), add this line to *android/gradle.properties* of your app:
+Create an application in Casdoor and add the redirect URI of your app to its **Redirect URLs**.
+
+```dart
+import 'package:casdoor_flutter_sdk/casdoor_flutter_sdk.dart';
+
+final AuthConfig config = AuthConfig(
+  clientId: '014ae4bd048734ca2dea',
+  serverUrl: 'https://door.casdoor.com',
+  organizationName: 'casbin',
+  appName: 'app-casnode',
+  // Native platforms: a custom scheme. Web: the callback page of your app.
+  redirectUri: kIsWeb ? 'http://localhost:9000/callback.html' : 'casdoor://callback',
+  callbackUrlScheme: 'casdoor',
+);
+```
+
+| Parameter | Required | Description |
+| --- | --- | --- |
+| `clientId` | Yes | Client ID of the Casdoor application |
+| `serverUrl` | Yes | URL of the Casdoor server, such as `https://door.casdoor.com` |
+| `organizationName` | Yes | Organization of the application |
+| `appName` | Yes | Name of the application |
+| `redirectUri` | No | Redirect URI, `casdoor://callback` by default |
+| `callbackUrlScheme` | No | Scheme of the redirect URI that ends the sign-in on native platforms, `casdoor` by default |
+
+### 2. Sign in
+
+```dart
+final Casdoor casdoor = Casdoor(config: config);
+
+// Opens the sign-in page and returns the redirect URL with `code` and `state`.
+final String callbackUrl = await casdoor.show(scope: 'openid profile email');
+
+// Rejects responses that were not started by this instance (CSRF protection).
+if (!casdoor.isState(callbackUrl)) {
+  throw Exception('state mismatch');
+}
+
+final String code = Uri.parse(callbackUrl).queryParameters['code']!;
+final response = await casdoor.requestOauthAccessToken(code);
+final Map<String, dynamic> tokens = jsonDecode(response.body);
+final String accessToken = tokens['access_token'];
+final String idToken = tokens['id_token'];
+final String refreshToken = tokens['refresh_token'];
+```
+
+Use the same `Casdoor` instance for `show()` and `requestOauthAccessToken()`: it holds the PKCE code verifier, the nonce and the state of this sign-in.
+
+On Android and iOS, `showFullscreen(context)` shows the sign-in page in a full screen page of your app instead of a separate window.
+
+### 3. Use the tokens
+
+```dart
+// Claims of the access token, such as name, displayName, email and avatar.
+final Map<String, dynamic> claims = casdoor.decodedToken(accessToken);
+
+// User info from the server.
+final userInfo = await casdoor.getUserInfo(accessToken);
+
+// Gets a new access token when the current one expires.
+if (casdoor.isTokenExpired(accessToken)) {
+  final refreshed = await casdoor.refreshToken(refreshToken, null);
+}
+```
+
+### 4. Sign out
+
+```dart
+// clearCache: true also clears the cookies of the sign-in page,
+// so the next sign-in asks for the credentials again.
+await casdoor.tokenLogout(idToken, null, 'logout', clearCache: true);
+```
+
+A complete app is in [example/lib/main.dart](example/lib/main.dart).
+
+## Platform setup
+
+| Platform | Sign-in page shown in |
+| --- | --- |
+| Android | In-app browser of [flutter_inappwebview](https://pub.dev/packages/flutter_inappwebview) |
+| iOS | `ASWebAuthenticationSession` |
+| macOS | In-app browser of flutter_inappwebview |
+| Linux, Windows | Web view window of [desktop_webview_window](https://pub.dev/packages/desktop_webview_window) |
+| Web | Popup window |
+
+### Android
+
+See the [setup guide](https://inappwebview.dev/docs/intro) of flutter_inappwebview.
+
+On Android Gradle Plugin 9 or later (the default of new projects since Flutter 3.47), the build of `flutter_inappwebview_android` fails with ``getDefaultProguardFile('proguard-android.txt')` is no longer supported``. Until flutter_inappwebview is fixed ([issue](https://github.com/pichillilorenzo/flutter_inappwebview/issues/2852)), add this line to `android/gradle.properties`:
 
 ```properties
 android.r8.proguardAndroidTxt.disallowed=false
 ```
 
-## Linux and Windows
+### iOS
 
-Add the package `desktop_webview_window: ^0.3.0` inside *dependencies* to your *pubspec.yaml* file.
+No setup is needed.
 
-Modify your *main* function to look like the following:
+### macOS
 
+Allow outgoing connections by adding this key to `macos/Runner/DebugProfile.entitlements` and `macos/Runner/Release.entitlements`:
+
+```xml
+<key>com.apple.security.network.client</key>
+<true/>
 ```
-void main(List<String> args) async {
+
+### Linux and Windows
+
+Add desktop_webview_window to your app:
+
+```bash
+flutter pub add desktop_webview_window
+```
+
+The sign-in window runs in a separate Flutter engine, so start your `main` function like this:
+
+```dart
+import 'package:desktop_webview_window/desktop_webview_window.dart';
+
+void main(List<String> args) {
   WidgetsFlutterBinding.ensureInitialized();
   if (runWebViewTitleBarWidget(args)) {
     return;
   }
-  // your code goes here ...
   runApp(const MyApp());
 }
 ```
 
-Please check the [documentation](https://pub.dev/packages/desktop_webview_window) of the desktop_webview_window package for more details.
+On **Linux**, install WebKitGTK, for example `sudo apt install libwebkit2gtk-4.1-dev` on Ubuntu. Don't install Flutter with Snap, the build fails with it.
 
-## Web
+On **Windows**:
 
-On the Web platform an endpoint needs to be created that captures the callback URL and sends it to the application using the JavaScript postMessage() method. In the ./web folder of the project, create an HTML file with the name e.g. callback.html with content:
+- The sign-in window uses the [WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/), which is preinstalled on Windows 11.
+- [nuget.exe](https://www.nuget.org/downloads) must be in the `PATH` (for example `winget install Microsoft.NuGet`). The Windows build of flutter_inappwebview downloads its dependencies with it and fails with `NUGET-NOTFOUND` otherwise.
+- Keep the path of your project short. The build fails with `Cannot open include file` when the full path of the flutter_inappwebview headers exceeds 260 characters.
+- desktop_webview_window has a [known bug](https://github.com/MixinNetwork/flutter-plugins/issues/283) that crashes the sign-in window randomly.
 
-```
+### Web
+
+Create `web/callback.html` in your app. Casdoor redirects the popup to this page, and the page sends the redirect URL back to your app:
+
+```html
 <!DOCTYPE html>
 <title>Authentication complete</title>
-<p>Authentication is complete. If this does not happen automatically, please
-close the window.
+<p>Authentication is complete. If this does not happen automatically, please close the window.
 <script>
   window.opener.postMessage({
     'casdoor-auth': window.location.href
   }, window.location.origin);
   window.close();
 </script>
-
 ```
 
-Redirection URL passed to the authentication service must be the same as the URL on which the application is running (schema, host, port if necessary) and the path must point to created HTML file, /callback.html in this case, like `callbackUri = "${_config.redirectUri}.html"`. The callbackUrlScheme parameter of the authenticate() method does not take into account, so it is possible to use a schema for native platforms in the code.It should be noted that when obtaining a token, cross domain may occur
+Set `redirectUri` to this page on the origin your app runs on, such as `http://localhost:9000/callback.html`, and run the app on that port with `flutter run -d chrome --web-port 9000`. `callbackUrlScheme` is not used on the Web.
 
-For the Sign in with Apple in web_message response mode, postMessage from https://appleid.apple.com is also captured, and the authorization object is returned as a URL fragment encoded as a query string (for compatibility with other providers).
+The token request is sent from the browser, so the Casdoor server must allow cross-origin requests from your app.
 
-# API reference interface
+For Sign in with Apple in `web_message` response mode, the message from `https://appleid.apple.com` is also captured, and the authorization object is returned as the URL fragment.
 
-#### Get sign up url
+## API
 
-```typescript
-getSignupUrl()
-```
+All methods are on the `Casdoor` class. The HTTP methods return the `http.Response` of the Casdoor API.
 
-#### Get sign in url
+| Method | Description |
+| --- | --- |
+| `show({scope, state})` | Opens the sign-in page in a new window and returns the redirect URL |
+| `showFullscreen(context, {isMaterialStyle, scope, state})` | Opens the sign-in page in a full screen page (Android and iOS) and returns the redirect URL |
+| `getSigninUrl({scope, state})` | URL of the sign-in page |
+| `getSignupUrl({scope, state})` | URL of the sign-up page |
+| `isState(callbackUrl)` | Whether the `state` of the redirect URL belongs to this instance |
+| `requestOauthAccessToken(code)` | Exchanges the authorization code for tokens |
+| `refreshToken(refreshToken, clientSecret, {scope})` | Gets a new access token |
+| `getUserInfo(accessToken)` | Gets the user info |
+| `tokenLogout(idTokenHint, postLogoutRedirectUri, state, {clearCache})` | Signs the user out |
+| `decodedToken(token)` | Decodes the payload of a JWT, without verifying its signature |
+| `isTokenExpired(token)` | Whether a JWT has expired |
+| `isNonce(idToken)` | Whether the ID token contains the nonce of this instance |
 
-```typescript
-getSigninUrl()
-```
+`show()` and `showFullscreen()` throw these exceptions:
 
-#### Get code in a new window (all platforms)
+| Exception | When |
+| --- | --- |
+| `CasdoorAuthCancelledException` | The user closed the sign-in page |
+| `CasdoorDesktopWebViewNotAvailableException` | No web view is available on Linux or Windows |
+| `CasdoorDesktopWebViewAlreadyOpenException` | A sign-in window is already open on Linux or Windows |
+| `CasdoorMobileWebAuthSessionNotAvailableException` | `ASWebAuthenticationSession` is not available or already in use on iOS |
+| `CasdoorMobileWebAuthSessionFailedException` | `ASWebAuthenticationSession` failed to start on iOS |
 
-```typescript
-show()
-```
+## Example
 
-#### Get code inside the app (Android and iOS)
+- [example/](example/): a minimal app in this repository
+- [casdoor-flutter-example](https://github.com/casdoor/casdoor-flutter-example): a complete app with all platform folders
 
-```typescript
-showFullscreen()
-```
+## License
 
-#### Get token
-
-```typescript
-requestOauthAccessToken()
-```
-
-#### Refresh token
-
-```typescript
-refreshToken()
-```
-
-#### Log out
-
-```typescript
-tokenLogout()
-```
-
-#### Get user information
-
-```typescript
-getUserInfo()
-```
-
-#### Decode token
-
-```typescript
-decodedToken()
-```
-
-#### Judge whether the token is expired
-
-```typescript
-isTokenExpired()
-```
-
-#### Verify nonce
-
-```typescript
-isNonce()
-```
-
-#### Verify state
-
-```typescript
-isState()
-```
-
-# Caveats
-
-## Windows
-
-There is a known bug in the desktop_webview_window package that causes random crashes of the browser window (see [issue](https://github.com/MixinNetwork/flutter-plugins/issues/283)).
-
-The Windows build of the InAppWebView package downloads its dependencies with NuGet, so [nuget.exe](https://www.nuget.org/downloads) must be in the `PATH` (for example `winget install Microsoft.NuGet`), otherwise the build fails with `NUGET-NOTFOUND`.
-
-Keep the path of your project short. The headers of the InAppWebView package are nested deeply, and the build fails with `Cannot open include file` when their full path exceeds 260 characters.
-
-## Linux (Ubuntu)
-
-Do not install Flutter or Visual Studio Code using Snap as this will prevent the code from building or running successfully. You need to install the Flutter and Visual Studio Code packages manually.
-
-## macOS
-
-There are instances where JavaScript is not working inside WKWebView. Please report any bugs that may occur.
-
-# Example
-
-See [example/lib/main.dart](example/lib/main.dart), and https://github.com/casdoor/casdoor-flutter-example for a complete app with all platform folders.
+[Apache-2.0](LICENSE)
